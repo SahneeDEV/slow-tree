@@ -1,4 +1,5 @@
-import SlowTreeGame from './SlowTreeGame';
+import SlowTreeGame from './Game';
+import DemoCommand from './commands/DemoCommand';
 
 const gameDiv = document.getElementById('game')! as HTMLDivElement;
 if (!gameDiv) {
@@ -6,3 +7,6 @@ if (!gameDiv) {
 }
 
 window.game = new SlowTreeGame(gameDiv);
+
+// Demo command to test.
+window.DemoCommand = DemoCommand;

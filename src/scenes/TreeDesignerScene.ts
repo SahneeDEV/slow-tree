@@ -1,6 +1,6 @@
 import 'phaser3-nineslice';
 import ISaveable from '../ISaveable';
-import SlowTreeGame from '../SlowTreeGame';
+import SlowTreeGame from '../Game';
 
 interface JSON {
 }

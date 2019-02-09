@@ -1,6 +1,7 @@
 import Locale from './Locale';
 import { Plugin as NineSlice } from 'phaser3-nineslice';
 import TreeDesignerScene from './scenes/TreeDesignerScene';
+import CommandManager from './commands/CommandManager';
 
 /**
  * Our main game class. This is where the fun begins.
@@ -8,6 +9,7 @@ import TreeDesignerScene from './scenes/TreeDesignerScene';
 export default class SlowTreeGame extends Phaser.Game {
     private _content: HTMLDivElement;
     private _locale: Locale = Locale.EN;
+    private _cmd: CommandManager;
 
     constructor(content: HTMLDivElement) {
         super({
@@ -22,6 +24,7 @@ export default class SlowTreeGame extends Phaser.Game {
         });
 
         this.input.mouse.disableContextMenu();
+        this._cmd = new CommandManager();
 
         // Set variables
         this._content = content;
@@ -31,6 +34,10 @@ export default class SlowTreeGame extends Phaser.Game {
 
         // Attach events & initialize
         window.addEventListener('resize', this.resized);
+    }
+
+    public get cmd() {
+        return this._cmd;
     }
 
     /**
