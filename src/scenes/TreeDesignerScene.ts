@@ -2,6 +2,8 @@ import 'phaser3-nineslice';
 import ISaveable from '../ISaveable';
 import SlowTreeGame from '../Game';
 import TreeGameObject from '../gameobjects/TreeGameObject';
+import BackgroundGameObject from '../gameobjects/BackgroundGameObject';
+import BackgroundSkin from '../BackgroundSkin';
 
 interface JSON {
 }
@@ -9,6 +11,7 @@ interface JSON {
 export default class TreeDesignerScene extends Phaser.Scene implements ISaveable<JSON> {
     private _application!: SlowTreeGame;
     private _tree!: TreeGameObject;
+    private _background!: BackgroundGameObject;
 
     constructor() {
         super({
@@ -32,24 +35,14 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
         this.load.image("tree/trunk", "/assets/images/trunk.png");
         this.load.image("tree/branch", "/assets/images/branch.png");
         this.load.image("tree/leaves", "/assets/images/leaves.png");
+        // Backgrounds
+        for (const background of BackgroundSkin.ALL_BACKGROUNDS) {
+            this.load.image(background.id, background.path);
+        }
     }
 
     create() {
-
-        const phaser = this.add.sprite(100, 100, "phaser");
-        phaser.setOrigin(0, 0);
-        phaser.setInteractive({pixelPerfect: true})
-        phaser.on("pointerup", (e: Phaser.Input.Pointer) => {
-            console.log("1 ->", e)
-        })
-
-        const phaser2 = this.add.sprite(400, 400, "phaser");
-        phaser2.setOrigin(0, 0);
-        phaser2.setInteractive({pixelPerfect: true})
-        phaser2.on("pointerup", (e: Phaser.Input.Pointer) => {
-            console.log("2 ->", e)
-        })
-
+        this._background = new BackgroundGameObject(this);
         this._tree = new TreeGameObject(this, this.cameras.main.width / 2, this.cameras.main.height);
     }
 
