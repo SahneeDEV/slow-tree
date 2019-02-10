@@ -24,7 +24,7 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         // Create objects
         this._trunk = this.scene.add.image(x, y, "tree/trunk");
         this._trunk.setOrigin(0.5, 1);
-        this._trunk.setScale(this.baseScale);
+        this._trunk.setScale(this.baseScale * this.scale);
         this._trunk.setInteractive({ pixelPerfect: true });
         this._trunk.on("pointerup", this.onPointerUp);
 
@@ -60,9 +60,13 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         return (this._y / this._trunk.height) * 0.75;
     }
 
+    public get scale() {
+        return 1;
+    }
+
     private onPointerUp(e: Phaser.Input.Pointer) {
-        const x = (this._trunk.x - e.worldX) / this._trunk.displayWidth;
-        const y = (this._trunk.y - e.worldY) / this._trunk.displayHeight;
+        const x = (this.x - e.worldX) / this.width;
+        const y = (this.y - e.worldY) / this.height;
         new MarkerGameObject(this.scene, e.worldX, e.worldY);
 
         window.game.cmd.execute(new AddBranchCommand({

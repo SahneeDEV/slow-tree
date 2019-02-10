@@ -29,9 +29,9 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
         this.load.image("phaser", "/assets/images/phaser.png");
         this.load.image("marker", "/assets/images/marker.png");
         // Tree images
-        this.load.image("tree/trunk", "/assets/images/dev/trunk.png");
-        this.load.image("tree/branch", "/assets/images/dev/branch.png");
-        this.load.image("tree/leaves", "/assets/images/dev/leaves.png");
+        this.load.image("tree/trunk", "/assets/images/trunk.png");
+        this.load.image("tree/branch", "/assets/images/branch.png");
+        this.load.image("tree/leaves", "/assets/images/leaves.png");
     }
 
     create() {

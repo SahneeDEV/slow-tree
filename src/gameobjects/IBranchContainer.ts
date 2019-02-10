@@ -15,6 +15,9 @@ export default interface IBranchContainer {
     
     readonly width: number;
     readonly height: number;
+
+    readonly scale: number;
+    readonly baseScale: number;
 }
 
 /**
