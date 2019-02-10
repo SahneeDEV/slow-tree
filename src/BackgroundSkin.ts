@@ -3,8 +3,10 @@
  */
 export default class BackgroundSkin {
     public static readonly TYLER_LASTOVICH = new BackgroundSkin("tyler-lastovich", "tyler-lastovich.jpg");
+    public static readonly BRIGHT_DAYLIGHT = new BackgroundSkin("bright-daylight", "bright-daylight.jpg");
+    public static readonly ARCH_BRIDGE = new BackgroundSkin("arch-bridge", "arch-bridge.jpg");
 
-    public static readonly ALL_BACKGROUNDS = [BackgroundSkin.TYLER_LASTOVICH]
+    public static readonly ALL_BACKGROUNDS = [BackgroundSkin.TYLER_LASTOVICH, BackgroundSkin.BRIGHT_DAYLIGHT, BackgroundSkin.ARCH_BRIDGE];
 
     public static random() {
         return BackgroundSkin.ALL_BACKGROUNDS[Math.round(Math.random() * (BackgroundSkin.ALL_BACKGROUNDS.length - 1))]
