@@ -9,7 +9,7 @@ import LeavesGameObject from "./LeavesGameObject";
  */
 export default class TreeGameObject extends Phaser.GameObjects.GameObject implements IBranchContainer {
     private _trunk: Phaser.GameObjects.Image;
-    private _branchGroup: Phaser.GameObjects.Group<BranchGameObject>;
+    private _branchGroup: Phaser.GameObjects.Group;
     private _x: number;
     private _y: number;
 
@@ -29,10 +29,7 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         this._trunk.setInteractive({ pixelPerfect: true });
         this._trunk.on("pointerup", this.onPointerUp);
 
-        this._branchGroup = this.scene.add.group({
-            classType: BranchGameObject,
-            //removeCallback: this.onRemoveBranch
-        })
+        this._branchGroup = this.scene.add.group();
 
         // Add us to the scene
         scene.add.existing(this);

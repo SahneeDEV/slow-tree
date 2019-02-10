@@ -10,8 +10,8 @@ import AddLeavesCommand from "../commands/AddLeavesCommand";
 export default class BranchGameObject extends Phaser.GameObjects.GameObject implements IBranchContainer {
     private _details: IBranchDetails;
     private _branch: Phaser.GameObjects.Image;
-    private _branchGroup: Phaser.GameObjects.Group<BranchGameObject>;
-    private _leavesGroup: Phaser.GameObjects.Group<LeavesGameObject>;
+    private _branchGroup: Phaser.GameObjects.Group;
+    private _leavesGroup: Phaser.GameObjects.Group;
     private _isAddingLeaves: boolean = false;
 
     constructor(scene: Phaser.Scene, details: IBranchDetails) {
@@ -27,14 +27,8 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         this._branch.on("pointerup", this.onPointerUp, this);
         this._branch.on("pointerdown", this.onPointerDown, this);
 
-        this._branchGroup = this.scene.add.group({
-            classType: BranchGameObject,
-            //removeCallback: this.onRemoveBranch
-        });
-        this._leavesGroup = this.scene.add.group({
-            classType: LeavesGameObject,
-            //removeCallback: this.onRemoveBranch
-        });
+        this._branchGroup = this.scene.add.group();
+        this._leavesGroup = this.scene.add.group();
 
         this.scene.events.on("update", this.onUpdate, this);
         this.scene.events.once("destroy", this.onDestroy, this);

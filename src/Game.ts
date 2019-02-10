@@ -68,7 +68,7 @@ export default class SlowTreeGame extends Phaser.Game {
      * Called whenever the browser window resizes.
      */
     private resized() {
-        this.resize(this._content.offsetWidth, this._content.offsetHeight);
+        this.scale.resize(this._content.offsetWidth, this._content.offsetHeight);
         for (const scene of this.scene.scenes) {
             if (this.scene.isActive(scene.scene.key)) {
                 this.scene.start(scene.scene.key);
