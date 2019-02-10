@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="full-size">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -8,14 +8,21 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta http-equiv="cleartype" content="on">
-    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
 </head>
 
-<body class="full-size">
+<body>
 
-    <div id="game" class="full-size"></div>
+    <div id="game" class="pure-u-md-3-4">
+        <img src="assets/images/phaser.png">
+    </div>
     <script src="dist/vendor.bundle.js"></script>
     <script src="dist/app.bundle.js"></script>
+
+    <div class="pure-u-1 pure-u-md-1-4">
+        THIS IS THE SIDE MENU
+    </div>
 
 </body>
 
