@@ -12,6 +12,7 @@ export default class CommandManager {
      */
     public execute(command: ICommand) {
         this._commands.push(command);
+        console.log("Executing command", command);
         command.execute();
     }
 
@@ -23,10 +24,15 @@ export default class CommandManager {
     public undo(): ICommand | null {
         const command = this._commands.pop();
         if (command) {
+            console.log("Undoing command", command);
             command.undo();
             return command;
         } else {
             return null;
         }
+    }
+
+    public redo(): never {
+        throw new Error("Not implemented");
     }
 }
