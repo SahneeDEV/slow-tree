@@ -1,7 +1,8 @@
 import MarkerGameObject from "./MarkerGameObject";
 import BranchGameObject from "./BranchGameObject";
-import IBranchContainer, { IBranchDetails } from "./IBranchContainer";
+import IBranchContainer, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
 import AddBranchCommand from "../commands/AddBranchCommand";
+import LeavesGameObject from "./LeavesGameObject";
 
 /**
  * A tree in the application.
@@ -85,5 +86,9 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         const branch = new BranchGameObject(this.scene, details);
         this._branchGroup.add(branch);
         return branch;
+    }
+
+    public addLeaves(details: ILeavesDetails): LeavesGameObject {
+        throw new Error("Method not implemented.");
     }
 }
