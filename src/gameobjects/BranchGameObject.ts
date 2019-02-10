@@ -62,13 +62,17 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     public get scale() {
-        return this._details.owner.scale - 0.1;
+        return this._details.owner.scale * 0.85;
     }
 
     private onPointerUp(e: Phaser.Input.Pointer) {
+        new MarkerGameObject(this.scene, e.worldX, e.worldY);
+        const newAngle = this._details.angle + 20;
+        if (newAngle >= 90) {
+            return;
+        }
         const x = (this.x - e.worldX) / this.width;
         const y = (this.y - e.worldY) / this.height;
-        new MarkerGameObject(this.scene, e.worldX, e.worldY);
 
         window.game.cmd.execute(new AddBranchCommand({
             angle: this._details.angle + 20,
