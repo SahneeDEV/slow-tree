@@ -1,6 +1,22 @@
-html,
+body {
+    background-color: #191818;
+}
 
-.full-size {
-    width: 100%;
-    height: 100%;
+#game {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+
+@media (min-width: 48em) {
+    #game {
+        left: 150px;
+    }
+}
+
+@media (max-width: 48em) {
+    #game {
+        left: 0;
+    }
 }
