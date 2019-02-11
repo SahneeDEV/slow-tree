@@ -9,9 +9,14 @@ body {
     right: 0;
 }
 
+.content-form {
+    padding-left: 0.6em !important;
+    padding-right: 0 !important;
+}
+
 @media (min-width: 48em) {
     #game {
-        left: 250px;
+        left: 300px;
     }
 }
 
