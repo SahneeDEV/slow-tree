@@ -4,7 +4,6 @@ import SlowTreeGame from '../Game';
 import TreeGameObject from '../gameobjects/TreeGameObject';
 import BackgroundGameObject from '../gameobjects/BackgroundGameObject';
 import BackgroundSkin from '../BackgroundSkin';
-import MarkerGameObject from '../gameobjects/MarkerGameObject';
 
 interface JSON {
 }
@@ -18,7 +17,6 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
         super({
             key: TreeDesignerScene.name
         });
-        window.m = (x, y) => new MarkerGameObject(this, x, y)
     }
 
     public saveGame(): JSON {

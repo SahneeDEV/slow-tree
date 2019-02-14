@@ -51,6 +51,10 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         return this._trunk.displayHeight;
     }
 
+    public get angle() {
+        return 0;
+    }
+
     /**
      * This is the scale the tree has a full size.
      */
@@ -65,10 +69,6 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
     private onPointerUp(e: Phaser.Input.Pointer) {
         const x = (e.worldX - this.x) / this.width;
         const y = (e.worldY - this.y) / this.height;
-        new MarkerGameObject(this.scene, e.worldX, e.worldY);
-
-        console.log({x,y})
-
         window.game.cmd.execute(new AddBranchCommand({
             angle: 20,
             owner: this,
