@@ -3,6 +3,7 @@ import MarkerGameObject from "./MarkerGameObject";
 import AddBranchCommand from "../commands/AddBranchCommand";
 import LeavesGameObject from "./LeavesGameObject";
 import AddLeavesCommand from "../commands/AddLeavesCommand";
+import rad from "../utils/rad";
 
 /**
  * A branch of a tree.
@@ -21,9 +22,9 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
 
         // Create objects
         this._branch = this.scene.add.image(0, 0, "tree/branch");
-        this._branch.setOrigin(0.5, 1);
+        this._branch.setOrigin(0.5, 0.5);
         this._branch.setInteractive({ pixelPerfect: true });
-        this._branch.setOrigin(1, 0.5);
+        this._branch.setOrigin(0.5, 0.5);
         this._branch.on("pointerup", this.onPointerUp, this);
         this._branch.on("pointerdown", this.onPointerDown, this);
 
@@ -74,18 +75,37 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     private onPointerDown(e: Phaser.Input.Pointer) {
-        new MarkerGameObject(this.scene, e.worldX, e.worldY);
+        //new MarkerGameObject(this.scene, e.worldX, e.worldY);
         this._isAddingLeaves = e.rightButtonDown();
     }
 
     private onPointerUp(e: Phaser.Input.Pointer) {
-        new MarkerGameObject(this.scene, e.worldX, e.worldY);
         const newAngle = this._details.angle + 20;
-        if (newAngle >= 90) {
+
+        const offsetX =  e.worldX - this.x;
+        const offsetY =  e.worldY - this.y;
+
+        const theta = rad(-this._details.angle);
+
+        const rotX = offsetX * Math.cos(theta) - offsetY * Math.sin(theta);
+        const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
+
+        const x = rotX / this.width;
+        const y = rotY / this.height;
+
+        console.log("Added at",{x,y})
+        
+        //new MarkerGameObject(this.scene,this.x+ rotX,this.y +rotY);
+
+        /*const x = offsetX / this.width;
+        const y = offsetY / this.height;*/
+
+        //console.log({ lolY, lolX });
+        /*if (newAngle >= 90) {
             return;
-        }
-        const x = (this.x - e.worldX) / this.width;
-        const y = (this.y - e.worldY) / this.height;
+        }*/
+        //console.log("Added at",{rotX, rotY, x, y, thisWidth: this.width, thisHeight: this.height, thisX: this.x, thisY: this.y})
+        //new MarkerGameObject(this.scene, x, y);
         if (this._isAddingLeaves) {
             window.game.cmd.execute(new AddLeavesCommand({
                 owner: this,
@@ -94,7 +114,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
             }));
         } else {
             window.game.cmd.execute(new AddBranchCommand({
-                angle: this._details.angle + 20,
+                angle: newAngle,
                 owner: this,
                 x: x,
                 y: y
@@ -103,7 +123,24 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     private onUpdate(time: number, deltaTime: number) {
-        const xOffset = this._details.owner.width * this._details.x;
+
+
+        const offsetX = this._details.owner.width * this._details.x;
+        const offsetY = this._details.owner.height * this._details.y;
+        
+        const theta = rad(this._details.angle - 20);
+
+        const rotX = offsetX * Math.cos(theta) - offsetY * Math.sin(theta);
+        const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
+
+        new MarkerGameObject(this.scene, this._details.owner.x + rotX, this._details.owner.y + rotY);
+
+        this._branch.setScale(this._details.owner.baseScale * this._details.owner.scale);
+        this._branch.setAngle(this._details.angle);
+        this._branch.setPosition(this._details.owner.x + rotX, this._details.owner.y + rotY);
+
+
+        /*const xOffset = this._details.owner.width * this._details.x;
         const x = this._details.owner.x - xOffset;
         let angle = 0;
         if (this._details.x < 0) {
@@ -113,8 +150,8 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         }
         this._branch.setPosition(x, this._details.owner.y - this._details.owner.height * this._details.y);
         this._branch.setAngle(angle);
-        this._branch.setScale(this._details.owner.baseScale * this._details.owner.scale);
-        new MarkerGameObject(this.scene, this._branch.x, this._branch.y);
+        this._branch.setScale(this._details.owner.baseScale * this._details.owner.scale);*/
+        //new MarkerGameObject(this.scene, this._branch.x, this._branch.y);
     }
 
     private onDestroy() {
