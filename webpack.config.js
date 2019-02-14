@@ -1,6 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+const VueLoaderPlugin = require("vue-loader/lib/plugin");
 
 module.exports = {
   entry: {
@@ -17,6 +18,7 @@ module.exports = {
   },
   watch: true,
   plugins: [
+    new VueLoaderPlugin(),
     new webpack.DefinePlugin({
       CANVAS_RENDERER: JSON.stringify(true),
       WEBGL_RENDERER: JSON.stringify(true)
@@ -30,10 +32,23 @@ module.exports = {
     })
   ],
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js', '.vue']
   },
   module: {
     rules: [
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader',
+        include: path.join(__dirname, 'src'),
+        options: {
+          loaders: { js: 'ts-loader', },
+          // esModule: true
+          //if a custom element (anything but img) needs to resolve a path, add it to this
+          //transformToRequire : {
+          //  'image-cropper' : 'src'
+          //}
+        }
+      },
       {
         test: /\.ts$/,
         use: ['awesome-typescript-loader'],
