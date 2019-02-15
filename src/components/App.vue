@@ -1,74 +1,41 @@
 <template>
   <div id="app">
-    <div id="layout">
-      <!-- Menu toggle -->
-      <a href="#menu" class="menu-link" id="menuLink">
-        <!-- Hamburger icon -->
-        <span></span>
-      </a>
+    <v-app>
+      <v-navigation-drawer app permanent>
+        <v-toolbar flat>
+          <v-list>
+            <v-list-tile>
+              <v-list-tile-title class="title">slow-tree</v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-toolbar>
 
-      <div id="menu">
-        <div class="pure-menu">
-          <a class="pure-menu-heading">slow-tree</a>
+        <v-divider></v-divider>
 
-          <ul class="pure-menu-list">
-            <li class="pure-menu-item pure-menu-selected">
-              <a href="#" class="pure-menu-link">Game</a>
-            </li>
-            <li class="pure-menu-item">
-              <a href="#" class="pure-menu-link">About</a>
-            </li>
-          </ul>
-          <div class="content content-form">
-            <form class="pure-form pure-form-stacked">
-              <fieldset>
-                <div class="pure-u-1">
-                  <label for="first-name">First Name</label>
-                  <input id="first-name" type="text">
-                </div>
+        <v-list dense class="pt-0">
+          <v-list-tile v-for="item in items" :key="item.title">
+            <v-list-tile-action>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-tile-action>
 
-                <div class="pure-u-1">
-                  <label for="first-name">First Name</label>
-                  <input id="first-name" type="text">
-                </div>
-                <div class="pure-u-1">
-                  <label for="first-name">First Name</label>
-                  <input id="first-name" type="text">
-                </div>
-                <div class="pure-u-1">
-                  <label for="first-name">First Name</label>
-                  <input id="first-name" type="text">
-                </div>
-
-                <div class="pure-u-1">
-                  <label for="state">State</label>
-                  <select id="state" class="pure-input-1-2">
-                    <option>AL</option>
-                    <option>CA</option>
-                    <option>IL</option>
-                  </select>
-                </div>
-
-                <div class="pure-u-1">
-                  <label for="terms" class="pure-checkbox">
-                    <input id="terms" type="checkbox"> I've read the terms and conditions
-                  </label>
-                </div>
-
-                <button type="submit" class="pure-button pure-button-primary">Submit</button>
-              </fieldset>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div id="game" ref="game"></div>
-    </div>
+            <v-list-tile-content>
+              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list>
+      </v-navigation-drawer>
+      <v-toolbar app></v-toolbar>
+      <v-content>
+          <div id="game" ref="game"></div>
+      </v-content>
+      <v-footer app></v-footer>
+    </v-app>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import Game from './../Game';
+import Game from "./../Game";
 
 @Component
 export default class App extends Vue {
@@ -76,15 +43,33 @@ export default class App extends Vue {
     super();
   }
 
+  items = [
+    { title: "Home", icon: "dashboard" },
+    { title: "About", icon: "question_answer" }
+  ];
+  right = null;
+
   created() {
     window.setImmediate(this.createDeferred);
   }
 
   createDeferred() {
-    this._game = new Game(this.$refs.game as HTMLDivElement)
+    this._game = new Game(this.$refs.game as HTMLDivElement);
+    window.game = this._game;
   }
 
   private _game!: Game;
 }
 </script>
+
+<style scoped>
+#game {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+</style>
+
 
