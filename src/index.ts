@@ -1,13 +1,9 @@
-//import SlowTreeGame from './Game';
-//import DemoCommand from './commands/DemoCommand';
 import Vue from 'vue'
 import App from "./components/App.vue";
 
 window.vue = new Vue({
 	render: h => h(App)
 }).$mount("#app")
-
-//window.game = new SlowTreeGame(gameDiv);
 
 const layout = document.getElementById('layout'),
 	menu = document.getElementById('menu'),

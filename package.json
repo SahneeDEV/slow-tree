@@ -21,21 +21,21 @@
   "author": "Patrick Sachs & Jakob Heubl",
   "license": "",
   "dependencies": {
-    "phaser": "^3.16.1",
+    "office-ui-fabric-vue": "^1.2.0",
+    "phaser": "^3.16.2",
     "phaser3-nineslice": "git+https://github.com/PatrickSachs/phaser3-nineslice.git#types",
-    "ts-loader": "^5.3.3",
     "vue": "^2.6.6",
     "vue-class-component": "^6.3.2",
-    "vue-loader": "^15.6.2",
-    "vue-property-decorator": "^7.3.0",
-    "vue-template-compiler": "^2.6.6"
+    "vue-property-decorator": "^7.3.0"
   },
   "devDependencies": {
-    "awesome-typescript-loader": "^5.2.1",
     "browser-sync": "^2.26.3",
     "browser-sync-webpack-plugin": "^2.2.2",
+    "ts-loader": "^5.3.3",
     "typescript": "^3.2.4",
-    "webpack": "^4.29.0",
+    "vue-loader": "^15.6.2",
+    "vue-template-compiler": "^2.6.6",
+    "webpack": "^4.29.4",
     "webpack-cli": "^3.2.1"
   }
 }
