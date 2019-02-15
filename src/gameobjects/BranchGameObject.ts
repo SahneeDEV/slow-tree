@@ -113,7 +113,6 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     private onUpdate(time: number, deltaTime: number) {
         const offsetX = this._details.owner.width * this._details.x;
         const offsetY = this._details.owner.height * this._details.y;
-        new MarkerGameObject(this.scene, this._details.owner.x + offsetX, this._details.owner.y + offsetY)
         const theta = rad(this._details.owner.angle);
         const rotX = offsetX * Math.cos(theta) - offsetY * Math.sin(theta);
         const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
