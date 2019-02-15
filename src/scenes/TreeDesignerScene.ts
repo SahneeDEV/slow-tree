@@ -1,11 +1,12 @@
 import 'phaser3-nineslice';
 import ISaveable from '../ISaveable';
 import SlowTreeGame from '../Game';
-import TreeGameObject from '../gameobjects/TreeGameObject';
+import TreeGameObject, { JSON as TreeJSON } from '../gameobjects/TreeGameObject';
 import BackgroundGameObject from '../gameobjects/BackgroundGameObject';
 import BackgroundSkin from '../BackgroundSkin';
 
-interface JSON {
+export interface JSON {
+    tree: TreeJSON
 }
 
 export default class TreeDesignerScene extends Phaser.Scene implements ISaveable<JSON> {
@@ -20,7 +21,9 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
     }
 
     public saveGame(): JSON {
-        return {}
+        return {
+            tree: this._tree.saveGame()
+        }
     }
 
     public loadGame(json: JSON) {

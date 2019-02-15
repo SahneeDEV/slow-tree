@@ -1,16 +1,34 @@
-import BranchGameObject from "./BranchGameObject";
+import BranchGameObject, { JSON as BranchJSON } from "./BranchGameObject";
 import IBranchContainer, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
 import AddBranchCommand from "../commands/AddBranchCommand";
 import LeavesGameObject from "./LeavesGameObject";
+import ISaveable from "@/ISaveable";
+
+export interface JSON {
+    branches: BranchJSON[];
+}
 
 /**
  * A tree in the application.
  */
-export default class TreeGameObject extends Phaser.GameObjects.GameObject implements IBranchContainer {
+export default class TreeGameObject extends Phaser.GameObjects.GameObject implements IBranchContainer, ISaveable<JSON> {
     private _trunk: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
     private _x: number;
     private _y: number;
+
+    saveGame(): JSON {
+        return {
+            branches: this._branchGroup.children.entries.map(c => {
+                const branch = c as BranchGameObject;
+                return branch.saveGame();
+            })
+        }
+    }
+    
+    loadGame(json: JSON): void {
+        throw new Error("Method not implemented.");
+    }
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         // Assign parameters.

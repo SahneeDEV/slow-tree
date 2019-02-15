@@ -1,10 +1,16 @@
+import ISaveable from "@/ISaveable";
 import { ILeavesDetails } from "./IBranchContainer";
 import rad from "@/utils/rad";
+
+export interface JSON {
+    x: number;
+    y: number;
+}
 
 /**
  * A branch of a tree.
  */
-export default class LeavesGameObject extends Phaser.GameObjects.GameObject {
+export default class LeavesGameObject extends Phaser.GameObjects.GameObject implements ISaveable<JSON> {
     private _details: ILeavesDetails;
     private _leaves: Phaser.GameObjects.Image;
 
@@ -21,6 +27,17 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject {
 
         // Add us to the scene
         scene.add.existing(this);
+    }
+
+    saveGame(): JSON {
+        return {
+            x: this._details.x,
+            y: this._details.y
+        }
+    }
+
+    loadGame(json: JSON): void {
+        throw new Error("Method not implemented.");
     }
 
     private onUpdate(time: number, deltaTime: number) {

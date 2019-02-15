@@ -1,13 +1,22 @@
+import ISaveable from "@/ISaveable";
 import IBranchContainer, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
 import AddBranchCommand from "../commands/AddBranchCommand";
-import LeavesGameObject from "./LeavesGameObject";
+import LeavesGameObject, { JSON as LeavesJSON } from "./LeavesGameObject";
 import AddLeavesCommand from "../commands/AddLeavesCommand";
 import rad from "../utils/rad";
+
+export interface JSON {
+    x: number;
+    y: number;
+    angle: number;
+    branches: JSON[];
+    leaves: LeavesJSON[];
+}
 
 /**
  * A branch of a tree.
  */
-export default class BranchGameObject extends Phaser.GameObjects.GameObject implements IBranchContainer {
+export default class BranchGameObject extends Phaser.GameObjects.GameObject implements IBranchContainer, ISaveable<JSON> {
     private _details: IBranchDetails;
     private _branch: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
@@ -34,6 +43,25 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
 
         // Add us to the scene
         scene.add.existing(this);
+    }
+
+    saveGame(): JSON {
+        return {
+            x: this._details.x,
+            y: this._details.y,
+            angle: this._details.angle,
+            branches: this._branchGroup.children.entries.map(c => {
+                const branch = c as BranchGameObject;
+                return branch.saveGame();
+            }),
+            leaves: this._leavesGroup.children.entries.map(l => {
+                const leaves = l as LeavesGameObject;
+                return leaves.saveGame();
+            })
+        }
+    }
+    loadGame(json: JSON): void {
+        throw new Error("Method not implemented.");
     }
 
     public get x() {
