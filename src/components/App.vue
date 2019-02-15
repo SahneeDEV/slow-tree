@@ -35,7 +35,9 @@
           </v-list-tile>
         </v-list>
       </v-navigation-drawer>
-      <v-toolbar app></v-toolbar>
+      <v-toolbar app>
+        <v-toolbar-side-icon @click.stop="mini = !mini"></v-toolbar-side-icon>
+      </v-toolbar>
       <v-content>
         <div id="game" ref="game"></div>
       </v-content>
