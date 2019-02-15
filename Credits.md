@@ -2,7 +2,7 @@
 
 ## Images
 
-* Favicon: @JakobHeubl bitte Link angeben, auch wenn Public Domain (zur Sicherheit)
+* Favicon: http://www.freestockphotos.biz/stockphoto/15928
 * Backgrounds
   * tyler-lastovich: https://unsplash.com/photos/fBTjWhzTDL0
   * bright-daylight: https://www.pexels.com/photo/bright-daylight-environment-forest-240040/

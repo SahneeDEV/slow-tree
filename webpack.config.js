@@ -1,6 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+const VueLoaderPlugin = require("vue-loader/lib/plugin");
 
 module.exports = {
   entry: {
@@ -10,13 +11,14 @@ module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
   output: {
-    pathinfo: true,
+    //pathinfo: true,
     path: path.resolve(__dirname, 'dist'),
     publicPath: './dist/',
     filename: '[name].bundle.js'
   },
   watch: true,
   plugins: [
+    new VueLoaderPlugin(),
     new webpack.DefinePlugin({
       CANVAS_RENDERER: JSON.stringify(true),
       WEBGL_RENDERER: JSON.stringify(true)
@@ -30,15 +32,26 @@ module.exports = {
     })
   ],
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js', '.vue']
   },
   module: {
     rules: [
       {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
         test: /\.ts$/,
-        use: ['awesome-typescript-loader'],
-        include: path.join(__dirname, 'src')
-      }
+        loader: 'ts-loader',
+        exclude: /node_modules/,
+        options: {
+          appendTsSuffixTo: [/\.vue$/],
+        }
+      },
     ]
   },
   optimization: {
