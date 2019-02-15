@@ -1,6 +1,4 @@
 import { ILeavesDetails } from "./IBranchContainer";
-import MarkerGameObject from "./MarkerGameObject";
-import AddBranchCommand from "../commands/AddBranchCommand";
 import rad from "@/utils/rad";
 
 /**
@@ -32,9 +30,7 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject {
         const rotX = offsetX * Math.cos(theta) - offsetY * Math.sin(theta);
         const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
         this._leaves.setScale(this._details.owner.baseScale * this._details.owner.scale);
-        //this._leaves.setAngle(this.angle);
         this._leaves.setPosition(this._details.owner.x + rotX, this._details.owner.y + rotY);
-        new MarkerGameObject(this.scene, this._leaves.x, this._leaves.y);
     }
 
     private onDestroy() {

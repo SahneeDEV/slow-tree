@@ -1,5 +1,4 @@
 import IBranchContainer, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
-import MarkerGameObject from "./MarkerGameObject";
 import AddBranchCommand from "../commands/AddBranchCommand";
 import LeavesGameObject from "./LeavesGameObject";
 import AddLeavesCommand from "../commands/AddLeavesCommand";
@@ -93,7 +92,6 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
         const x = rotX / this.width;
         const y = rotY / this.height;
-        console.log({ x, y });
         if (this._isAddingLeaves) {
             window.game.cmd.execute(new AddLeavesCommand({
                 owner: this,

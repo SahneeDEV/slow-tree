@@ -1,4 +1,3 @@
-import MarkerGameObject from "./MarkerGameObject";
 import BranchGameObject from "./BranchGameObject";
 import IBranchContainer, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
 import AddBranchCommand from "../commands/AddBranchCommand";
@@ -69,7 +68,6 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
     private onPointerUp(e: Phaser.Input.Pointer) {
         const x = (e.worldX - this.x) / this.width;
         const y = (e.worldY - this.y) / this.height;
-        console.log({x,y});
         window.game.cmd.execute(new AddBranchCommand({
             angle: 80,
             owner: this,
