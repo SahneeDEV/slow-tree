@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <v-app>
+    <v-app dark>
       <v-navigation-drawer app permanent>
         <v-toolbar flat>
           <v-list>
