@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <v-app dark>
-      <v-navigation-drawer app permanent>
+      <v-navigation-drawer app v-model="drawer" :mini-variant.sync="mini" hide-overlay stateless>
         <v-toolbar flat class="transparent">
           <v-list class="pa-0">
             <v-list-tile avatar>
@@ -12,6 +12,11 @@
               <v-list-tile-content>
                 <v-list-tile-title>slow-tree</v-list-tile-title>
               </v-list-tile-content>
+              <v-list-tile-action>
+                <v-btn icon @click.stop="mini = !mini">
+                  <v-icon>chevron_left</v-icon>
+                </v-btn>
+              </v-list-tile-action>
             </v-list-tile>
           </v-list>
         </v-toolbar>
@@ -30,7 +35,9 @@
           </v-list-tile>
         </v-list>
       </v-navigation-drawer>
-      <v-toolbar app></v-toolbar>
+      <v-toolbar app>
+        <v-toolbar-side-icon @click.stop="mini = !mini"></v-toolbar-side-icon>
+      </v-toolbar>
       <v-content>
         <div id="game" ref="game"></div>
       </v-content>
@@ -65,6 +72,9 @@ export default class App extends Vue {
   }
 
   private _game!: Game;
+
+  drawer = true;
+  mini = true;
 }
 </script>
 
@@ -78,4 +88,8 @@ export default class App extends Vue {
 }
 </style>
 
-
+<style>
+html {
+  overflow-y: hidden !important;
+}
+</style>
