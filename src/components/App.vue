@@ -2,10 +2,16 @@
   <div id="app">
     <v-app dark>
       <v-navigation-drawer app permanent>
-        <v-toolbar flat>
-          <v-list>
-            <v-list-tile>
-              <v-list-tile-title class="title">slow-tree</v-list-tile-title>
+        <v-toolbar flat class="transparent">
+          <v-list class="pa-0">
+            <v-list-tile avatar>
+              <v-list-tile-avatar>
+                <img src="/assets/images/favicon.ico">
+              </v-list-tile-avatar>
+
+              <v-list-tile-content>
+                <v-list-tile-title>slow-tree</v-list-tile-title>
+              </v-list-tile-content>
             </v-list-tile>
           </v-list>
         </v-toolbar>
@@ -26,7 +32,7 @@
       </v-navigation-drawer>
       <v-toolbar app></v-toolbar>
       <v-content>
-          <div id="game" ref="game"></div>
+        <div id="game" ref="game"></div>
       </v-content>
       <v-footer app></v-footer>
     </v-app>
