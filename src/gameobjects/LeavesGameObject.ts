@@ -1,11 +1,16 @@
+import ISaveable from "@/ISaveable";
 import { ILeavesDetails } from "./IBranchContainer";
-import MarkerGameObject from "./MarkerGameObject";
-import AddBranchCommand from "../commands/AddBranchCommand";
+import rad from "@/utils/rad";
+
+export interface JSON {
+    x: number;
+    y: number;
+}
 
 /**
  * A branch of a tree.
  */
-export default class LeavesGameObject extends Phaser.GameObjects.GameObject {
+export default class LeavesGameObject extends Phaser.GameObjects.GameObject implements ISaveable<JSON> {
     private _details: ILeavesDetails;
     private _leaves: Phaser.GameObjects.Image;
 
@@ -24,12 +29,24 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject {
         scene.add.existing(this);
     }
 
+    saveGame(): JSON {
+        return {
+            x: this._details.x,
+            y: this._details.y
+        }
+    }
+
+    loadGame(json: JSON): void {
+    }
+
     private onUpdate(time: number, deltaTime: number) {
-        const xOffset = this._details.owner.width * this._details.x;
-        const x = this._details.owner.x - xOffset;
-        this._leaves.setPosition(x, this._details.owner.y - this._details.owner.height * this._details.y);
+        const offsetX = this._details.owner.width * this._details.x;
+        const offsetY = this._details.owner.height * this._details.y;
+        const theta = rad(this._details.owner.angle);
+        const rotX = offsetX * Math.cos(theta) - offsetY * Math.sin(theta);
+        const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
         this._leaves.setScale(this._details.owner.baseScale * this._details.owner.scale);
-        new MarkerGameObject(this.scene, this._leaves.x, this._leaves.y);
+        this._leaves.setPosition(this._details.owner.x + rotX, this._details.owner.y + rotY);
     }
 
     private onDestroy() {

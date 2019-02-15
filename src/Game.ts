@@ -63,16 +63,23 @@ export default class SlowTreeGame extends Phaser.Game {
         return typeof json === 'string' ? json : path.join('.');
     }
 
+    public get activeScene(): Phaser.Scene | null {
+        for (const scene of this.scene.scenes) {
+            if (this.scene.isActive(scene.scene.key)) {
+                return scene;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Called whenever the browser window resizes.
      */
     private resized() {
         this.scale.resize(this._content.offsetWidth, this._content.offsetHeight);
-        for (const scene of this.scene.scenes) {
-            if (this.scene.isActive(scene.scene.key)) {
-                this.scene.start(scene.scene.key);
-            }
+        if (this.activeScene) {
+            this.scene.start(this.activeScene.scene.key);
         }
     }
 }
