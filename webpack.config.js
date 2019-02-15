@@ -11,7 +11,7 @@ module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
   output: {
-    pathinfo: true,
+    //pathinfo: true,
     path: path.resolve(__dirname, 'dist'),
     publicPath: './dist/',
     filename: '[name].bundle.js'
@@ -38,22 +38,16 @@ module.exports = {
     rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader',
-        include: path.join(__dirname, 'src'),
-        options: {
-          loaders: { js: 'ts-loader', },
-          // esModule: true
-          //if a custom element (anything but img) needs to resolve a path, add it to this
-          //transformToRequire : {
-          //  'image-cropper' : 'src'
-          //}
-        }
+        loader: 'vue-loader'
       },
       {
         test: /\.ts$/,
-        use: ['awesome-typescript-loader'],
-        include: path.join(__dirname, 'src')
-      }
+        loader: 'ts-loader',
+        exclude: /node_modules/,
+        options: {
+          appendTsSuffixTo: [/\.vue$/],
+        }
+      },
     ]
   },
   optimization: {

@@ -1,5 +1,5 @@
 //import SlowTreeGame from './Game';
-import DemoCommand from './commands/DemoCommand';
+//import DemoCommand from './commands/DemoCommand';
 import Vue from 'vue'
 import Test from "./components/Test.vue";
 
@@ -13,9 +13,6 @@ new Vue({
   }).$mount(gameDiv)
 
 //window.game = new SlowTreeGame(gameDiv);
-
-// Demo command to test.
-window.DemoCommand = DemoCommand;
 
 var layout   = document.getElementById('layout'),
     menu     = document.getElementById('menu'),

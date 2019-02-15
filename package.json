@@ -23,6 +23,7 @@
   "dependencies": {
     "phaser": "^3.16.1",
     "phaser3-nineslice": "git+https://github.com/PatrickSachs/phaser3-nineslice.git#types",
+    "ts-loader": "^5.3.3",
     "vue": "^2.6.6",
     "vue-class-component": "^6.3.2",
     "vue-loader": "^15.6.2",
