@@ -61,7 +61,23 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         }
     }
     loadGame(json: JSON): void {
-        throw new Error("Method not implemented.");
+        for (let i = 0; i < json.branches.length; i++) {
+            const branch = json.branches[i];
+            this.addBranch({
+                x: branch.x,
+                y: branch.y,
+                angle: branch.angle,
+                owner: this
+            }).loadGame(branch);
+        }
+        for (let i = 0; i < json.leaves.length; i++) {
+            const leaves = json.leaves[i];
+            this.addLeaves({
+                x: leaves.x,
+                y: leaves.y,
+                owner: this
+            }).loadGame(leaves);
+        }
     }
 
     public get x() {

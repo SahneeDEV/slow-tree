@@ -37,7 +37,6 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     loadGame(json: JSON): void {
-        throw new Error("Method not implemented.");
     }
 
     private onUpdate(time: number, deltaTime: number) {

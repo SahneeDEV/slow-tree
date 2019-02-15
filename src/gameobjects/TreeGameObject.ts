@@ -25,9 +25,17 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
             })
         }
     }
-    
+
     loadGame(json: JSON): void {
-        throw new Error("Method not implemented.");
+        for (let i = 0; i < json.branches.length; i++) {
+            const branch = json.branches[i];
+            this.addBranch({
+                x: branch.x,
+                y: branch.y,
+                angle: branch.angle,
+                owner: this
+            }).loadGame(branch);
+        }
     }
 
     constructor(scene: Phaser.Scene, x: number, y: number) {

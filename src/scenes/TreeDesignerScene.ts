@@ -27,6 +27,7 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
     }
 
     public loadGame(json: JSON) {
+        this._tree.loadGame(json.tree);
     }
 
     preload() {
