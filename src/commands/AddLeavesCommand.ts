@@ -12,7 +12,7 @@ export default class AddLeavesCommand implements ICommand {
     }
 
     execute(): void {
-        this._details.owner.addLeaves(this._details);
+        this._leaves = this._details.owner.addLeaves(this._details);
     }
     
     undo(): void {
