@@ -1,14 +1,14 @@
+import  TreeType  from "@/TreeType";
 import ISaveable from "@/ISaveable";
-import IBranchContainer, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
-import AddBranchCommand from "../commands/AddBranchCommand";
+import ITreeElement, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
 import LeavesGameObject, { JSON as LeavesJSON } from "./LeavesGameObject";
-import AddLeavesCommand from "../commands/AddLeavesCommand";
 import rad from "../utils/rad";
 
 export interface JSON {
     x: number;
     y: number;
     angle: number;
+    type: string;
     branches: JSON[];
     leaves: LeavesJSON[];
 }
@@ -16,20 +16,22 @@ export interface JSON {
 /**
  * A branch of a tree.
  */
-export default class BranchGameObject extends Phaser.GameObjects.GameObject implements IBranchContainer, ISaveable<JSON> {
+export default class BranchGameObject extends Phaser.GameObjects.GameObject implements ITreeElement, ISaveable<JSON> {
     private _details: IBranchDetails;
     private _branch: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
     private _leavesGroup: Phaser.GameObjects.Group;
     private _isAddingLeaves: boolean = false;
+    private _treeType: TreeType;
 
     constructor(scene: Phaser.Scene, details: IBranchDetails) {
         // Assign parameters.
         super(scene, BranchGameObject.name);
         this._details = details;
+        this._treeType = details.treeType;
 
         // Create objects
-        this._branch = this.scene.add.image(0, 0, "tree/branch");
+        this._branch = this.scene.add.image(0, 0, `tree/${this._treeType.id}/branch`);
         this._branch.setOrigin(0.5, 1);
         this._branch.setInteractive({ pixelPerfect: true });
         this._branch.on("pointerup", this.onPointerUp, this);
@@ -57,7 +59,8 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
             leaves: this._leavesGroup.children.entries.map(l => {
                 const leaves = l as LeavesGameObject;
                 return leaves.saveGame();
-            })
+            }),
+            type: this.treeType.id
         }
     }
 
@@ -68,6 +71,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
                 x: branch.x,
                 y: branch.y,
                 angle: branch.angle,
+                treeType: this.treeType,
                 owner: this
             }).loadGame(branch);
         }
@@ -76,9 +80,14 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
             this.addLeaves({
                 x: leaves.x,
                 y: leaves.y,
+                treeType: this.treeType,
                 owner: this
             }).loadGame(leaves);
         }
+    }
+
+    public get treeType() {
+        return this._treeType;
     }
 
     public get x() {
@@ -146,27 +155,18 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         if (this._isAddingLeaves) {
             this.emit("add-leaves", {
                 owner: this,
+                treeType: this.treeType,
                 x: x,
                 y: y
             });
-            /*window.game.cmd.execute(new AddLeavesCommand({
-                owner: this,
-                x: x,
-                y: y
-            }));*/
         } else {
             this.emit("add-branch", {
                 angle: 20,
                 owner: this,
+                treeType: this.treeType,
                 x: x,
                 y: y
             });
-            /*window.game.cmd.execute(new AddBranchCommand({
-                angle: 20,
-                owner: this,
-                x: x,
-                y: y
-            }));*/
         }
     }
 
@@ -176,7 +176,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         const theta = rad(this._details.owner.angle);
         const rotX = offsetX * Math.cos(theta) - offsetY * Math.sin(theta);
         const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
-        this._branch.setScale(this._details.owner.baseScale * this._details.owner.scale);
+        this._branch.setScale(this._details.owner.baseScale * this.scale);
         this._branch.setAngle(this.angle);
         this._branch.setPosition(this._details.owner.x + rotX, this._details.owner.y + rotY);
     }

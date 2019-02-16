@@ -1,9 +1,10 @@
 import 'phaser3-nineslice';
-import ISaveable from '../ISaveable';
-import SlowTreeGame from '../Game';
-import TreeGameObject, { JSON as TreeJSON } from '../gameobjects/TreeGameObject';
-import BackgroundGameObject from '../gameobjects/BackgroundGameObject';
-import BackgroundSkin from '../BackgroundSkin';
+import ISaveable from '@/ISaveable';
+import SlowTreeGame from '@/Game';
+import TreeGameObject, { JSON as TreeJSON } from '@/gameobjects/TreeGameObject';
+import BackgroundGameObject from '@/gameobjects/BackgroundGameObject';
+import BackgroundSkin from '@/BackgroundSkin';
+import TreeType from '@/TreeType';
 
 export interface JSON {
     tree: TreeJSON
@@ -36,9 +37,11 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
         this.load.image("phaser", "/assets/images/phaser.png");
         this.load.image("marker", "/assets/images/marker.png");
         // Tree images
-        this.load.image("tree/trunk", "/assets/images/trunk.png");
-        this.load.image("tree/branch", "/assets/images/branch.png");
-        this.load.image("tree/leaves", "/assets/images/leaves.png");
+        for (const treeType of TreeType.ALL_TREES) {
+            this.load.image(`tree/${treeType.id}/trunk`, `/assets/images/tree/${treeType.id}/trunk.png`);
+            this.load.image(`tree/${treeType.id}/branch`, `/assets/images/tree/${treeType.id}/branch.png`);
+            this.load.image(`tree/${treeType.id}/leaves`, `/assets/images/tree/${treeType.id}/leaves.png`);
+        }
         // Backgrounds
         for (const background of BackgroundSkin.ALL_BACKGROUNDS) {
             this.load.image(background.id, background.path);

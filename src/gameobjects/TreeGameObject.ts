@@ -1,42 +1,23 @@
+import  TreeType  from "@/TreeType";
 import BranchGameObject, { JSON as BranchJSON } from "./BranchGameObject";
-import IBranchContainer, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
-import AddBranchCommand from "../commands/AddBranchCommand";
+import ITreeElement, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
 import LeavesGameObject from "./LeavesGameObject";
 import ISaveable from "@/ISaveable";
 
 export interface JSON {
     branches: BranchJSON[];
+    type: string;
 }
 
 /**
  * A tree in the application.
  */
-export default class TreeGameObject extends Phaser.GameObjects.GameObject implements IBranchContainer, ISaveable<JSON> {
+export default class TreeGameObject extends Phaser.GameObjects.GameObject implements ITreeElement, ISaveable<JSON> {
     private _trunk: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
     private _x: number;
     private _y: number;
-
-    saveGame(): JSON {
-        return {
-            branches: this._branchGroup.children.entries.map(c => {
-                const branch = c as BranchGameObject;
-                return branch.saveGame();
-            })
-        }
-    }
-
-    loadGame(json: JSON): void {
-        for (let i = 0; i < json.branches.length; i++) {
-            const branch = json.branches[i];
-            this.addBranch({
-                x: branch.x,
-                y: branch.y,
-                angle: branch.angle,
-                owner: this
-            }).loadGame(branch);
-        }
-    }
+    private _treeType: TreeType = TreeType.BROADLEAF;
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         // Assign parameters.
@@ -48,7 +29,7 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         this.onPointerUp = this.onPointerUp.bind(this);
 
         // Create objects
-        this._trunk = this.scene.add.image(x, y, "tree/trunk");
+        this._trunk = this.scene.add.image(x, y, `tree/${this.treeType.id}/trunk`);
         this._trunk.setOrigin(0.5, 1);
         this._trunk.setScale(this.baseScale * this.scale);
         this._trunk.setInteractive({ pixelPerfect: true });
@@ -58,6 +39,34 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
 
         // Add us to the scene
         scene.add.existing(this);
+    }
+
+    saveGame(): JSON {
+        return {
+            branches: this._branchGroup.children.entries.map(c => {
+                const branch = c as BranchGameObject;
+                return branch.saveGame();
+            }),
+            type: this.treeType.id
+        }
+    }
+
+    loadGame(json: JSON): void {
+        this._treeType = TreeType.byId(json.type) || TreeType.BROADLEAF;
+        for (let i = 0; i < json.branches.length; i++) {
+            const branch = json.branches[i];
+            this.addBranch({
+                x: branch.x,
+                y: branch.y,
+                angle: branch.angle,
+                treeType: this.treeType,
+                owner: this
+            }).loadGame(branch);
+        }
+    }
+
+    public get treeType() {
+        return this._treeType;
     }
 
     public get x() {
@@ -97,15 +106,10 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         this.emit("add-branch", {
             angle: 80,
             owner: this,
+            treeType: this.treeType,
             x: x,
             y: y
         });
-        /*window.game.cmd.execute(new AddBranchCommand({
-            angle: 80,
-            owner: this,
-            x: x,
-            y: y
-        }));*/
     }
 
     /**

@@ -1,10 +1,11 @@
+import TreeType from "@/TreeType";
 import BranchGameObject from "./BranchGameObject";
 import LeavesGameObject from "./LeavesGameObject";
 
 /**
  * This interface must be implemented by all objects containing branches.
  */
-export default interface IBranchContainer {
+export default interface ITreeElement {
     /**
      * Adds a new branch to the container.
      * @param details Details about this branch
@@ -15,10 +16,14 @@ export default interface IBranchContainer {
      * @param details Details about there leaves
      */
     addLeaves(details: ILeavesDetails): LeavesGameObject;
+    /**
+     * The type of this tree.
+     */
+    readonly treeType: TreeType;
 
     readonly x: number;
     readonly y: number;
-    
+
     readonly width: number;
     readonly height: number;
 
@@ -45,9 +50,13 @@ export interface IBranchDetails {
      */
     angle: number;
     /**
+     * The type of this tree.
+     */
+    treeType: TreeType;
+    /**
      * The owner of the branch.
      */
-    owner: IBranchContainer;
+    owner: ITreeElement;
 }
 
 /**
@@ -63,7 +72,11 @@ export interface ILeavesDetails {
      */
     y: number;
     /**
+     * The type of this tree.
+     */
+    treeType: TreeType;
+    /**
      * The owner of the leaves.
      */
-    owner: IBranchContainer;
+    owner: ITreeElement;
 }
