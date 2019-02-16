@@ -12,7 +12,7 @@ export default class AddBranchCommand implements ICommand {
     }
 
     execute(): void {
-        this._details.owner.addBranch(this._details);
+        this._branch = this._details.owner.addBranch(this._details);
     }
     
     undo(): void {

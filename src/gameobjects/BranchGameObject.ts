@@ -41,7 +41,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         this._leavesGroup = this.scene.add.group();
 
         this.scene.events.on("update", this.onUpdate, this);
-        this.scene.events.once("destroy", this.onDestroy, this);
+        this.once("destroy", this.onDestroy, this);
 
         // Add us to the scene
         scene.add.existing(this);
@@ -182,6 +182,9 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     private onDestroy() {
+        this._branch.destroy(true);
+        this._branchGroup.destroy(true);
+        this._leavesGroup.destroy(true);
         this.scene.events.off("update", this.onUpdate, this, false);
         this._branch.off("pointerup", this.onPointerUp, this, false);
         this._branch.off("pointerdown", this.onPointerDown, this, false);

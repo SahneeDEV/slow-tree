@@ -29,7 +29,7 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
         this._leaves.setInteractive({ pixelPerfect: true });
 
         this.scene.events.on("update", this.onUpdate, this);
-        this.scene.events.once("destroy", this.onDestroy, this);
+        this.once("destroy", this.onDestroy, this);
 
         // Add us to the scene
         scene.add.existing(this);
