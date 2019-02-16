@@ -37,7 +37,7 @@
       </v-navigation-drawer>
       <v-toolbar app>
         <v-toolbar-side-icon @click.stop="mini = !mini"></v-toolbar-side-icon>
-                <v-dialog v-model="dialog" width="500">
+        <v-dialog v-model="dialog" width="500">
           <v-btn slot="activator" dark>
             <v-icon>settings</v-icon>
           </v-btn>
@@ -83,7 +83,7 @@
           <v-btn flat>
             <v-icon>create</v-icon>
           </v-btn>
-          <v-btn flat>
+          <v-btn :disabled="!scene" flat @click.stop="onClickDownload()">
             <v-icon>cloud_download</v-icon>
           </v-btn>
           <v-btn flat>
@@ -120,7 +120,7 @@ export default class App extends Vue {
   }
 
   private _game!: Game;
-  private _scene?: TreeDesignerScene;
+  private scene: TreeDesignerScene | null = null;
   private items = [
     { title: "Home", icon: "dashboard" },
     { title: "About", icon: "question_answer" }
@@ -158,31 +158,44 @@ export default class App extends Vue {
    */
   onSceneReady(scene: TreeDesignerScene) {
     console.log("Scene ready,  ...", scene);
-    this._scene = scene;
+    this.scene = scene;
     // Hook up scene events
     scene.tree.on("add-branch", this.onAddBranch);
     scene.tree.on("add-leaves", this.onAddLeaves);
   }
 
+  /**
+   * Called whenever a branch is left-clicked.
+   */
   onAddBranch(details: IBranchDetails) {
     this._game.cmd.execute(new AddBranchCommand(details));
   }
 
+  /**
+   * Called whenever a branch is right-clicked.
+   */
   onAddLeaves(details: ILeavesDetails) {
     this._game.cmd.execute(new AddLeavesCommand(details));
   }
 
+  /**
+   * Called when the user clicks on the download button.
+   */
+  onClickDownload() {
+    this.download();
+  }
+
   download() {
-    if (this._scene) {
+    if (this.scene) {
       const type = "application/json";
-      const data = JSON.stringify(this._scene.saveGame());
-      const blob = new Blob([data], { type });
-      const a = document.createElement("a");
+      const json = JSON.stringify(this.scene.saveGame());
+      const data = "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
+      console.log(data)
+      const a = document.body.appendChild(document.createElement("a"));
       a.download = "slow-tree.json";
-      a.href = window.URL.createObjectURL(blob);
-      a.dataset.downloadurl = [type, a.download, a.href].join(":");
-      document.body.appendChild(a);
+      a.href = data
       a.click();
+      console.log(a.outerHTML)
       document.body.removeChild(a);
       return data;
     }
@@ -196,7 +209,7 @@ export default class App extends Vue {
 
   leaves = ["Laubblätter", "Nadelblätter"];
   trees = ["Normal Tree", "Not Normal Tree"];
-  backgrounds = ["Default", "Forest", "Over Trees"]
+  backgrounds = ["Default", "Forest", "Over Trees"];
 
   tree = "Normal Tree";
   leaf = "Laubblätter";
