@@ -141,9 +141,9 @@ export default class App extends Vue {
   trees = ["Normal Tree", "Not Normal Tree"];
   backgrounds = ["Default", "Forest", "Over Trees"]
 
-  tree = null;
-  leaf = null;
-  background = null;
+  tree = "Normal Tree";
+  leaf = "Laubblätter";
+  background = "Default";
 }
 </script>
 
