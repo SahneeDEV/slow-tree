@@ -88,10 +88,10 @@
           <v-btn flat>
             <v-icon>cloud_upload</v-icon>
           </v-btn>
-          <v-btn flat>
+          <v-btn flat @click.stop="undo()">
             <v-icon>undo</v-icon>
           </v-btn>
-          <v-btn flat>
+          <v-btn flat @click.stop="redo()">
             <v-icon>redo</v-icon>
           </v-btn>
         </v-toolbar-items>
@@ -220,6 +220,14 @@ export default class App extends Vue {
       return data;
     }
     return "";
+  }
+
+  undo() {
+    this.game.cmd.undo();
+  }
+
+  redo() {
+    this.game.cmd.redo();
   }
 
   drawer = true;
