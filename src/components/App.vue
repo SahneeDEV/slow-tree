@@ -37,6 +37,65 @@
       </v-navigation-drawer>
       <v-toolbar app>
         <v-toolbar-side-icon @click.stop="mini = !mini"></v-toolbar-side-icon>
+                <v-dialog v-model="dialog" width="500">
+          <v-btn slot="activator" dark>
+            <v-icon>settings</v-icon>
+          </v-btn>
+          <v-card>
+            <v-card-title dark class="headline" primary-title>Settings for the Tree Builder</v-card-title>
+            <v-card-text>
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex xs12 sm6 xs4>
+                    <v-select
+                      v-model="tree"
+                      :items="trees"
+                      label="Tree"
+                      data-vv-name="tree"
+                      required
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs12 sm6 xs4>
+                    <v-select
+                      v-model="leaf"
+                      :items="leaves"
+                      label="Leaf"
+                      data-vv-name="leaf"
+                      required
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs12 sm6 xs4>
+                    <v-select
+                      v-model="background"
+                      :items="backgrounds"
+                      label="Background"
+                      data-vv-name="background"
+                      required
+                    ></v-select>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+        <v-spacer></v-spacer>
+        <v-toolbar-items>
+          <v-btn flat>
+            <v-icon>create</v-icon>
+          </v-btn>
+          <v-btn flat>
+            <v-icon>cloud_download</v-icon>
+          </v-btn>
+          <v-btn flat>
+            <v-icon>cloud_upload</v-icon>
+          </v-btn>
+          <v-btn flat>
+            <v-icon>undo</v-icon>
+          </v-btn>
+          <v-btn flat>
+            <v-icon>redo</v-icon>
+          </v-btn>
+        </v-toolbar-items>
       </v-toolbar>
       <v-content>
         <div id="game" ref="game"></div>
@@ -132,6 +191,16 @@ export default class App extends Vue {
 
   drawer = true;
   mini = true;
+
+  dialog = false;
+
+  leaves = ["Laubblätter", "Nadelblätter"];
+  trees = ["Normal Tree", "Not Normal Tree"];
+  backgrounds = ["Default", "Forest", "Over Trees"]
+
+  tree = "Normal Tree";
+  leaf = "Laubblätter";
+  background = "Default";
 }
 </script>
 
