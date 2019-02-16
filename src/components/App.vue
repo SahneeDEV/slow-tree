@@ -36,7 +36,6 @@
         </v-list>
       </v-navigation-drawer>
       <v-toolbar app>
-        <v-toolbar-side-icon @click.stop="mini = !mini"></v-toolbar-side-icon>
         <v-dialog v-model="dialog" width="500">
           <v-btn slot="activator" dark>
             <v-icon>settings</v-icon>
