@@ -60,6 +60,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
             })
         }
     }
+
     loadGame(json: JSON): void {
         for (let i = 0; i < json.branches.length; i++) {
             const branch = json.branches[i];
@@ -121,6 +122,12 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     public addBranch(details: IBranchDetails): BranchGameObject {
         const branch = new BranchGameObject(this.scene, details);
         this._branchGroup.add(branch);
+        branch.on("add-branch", (details: IBranchDetails) => {
+            this.emit("add-branch", details);
+        });
+        branch.on("add-leaves", (details: ILeavesDetails) => {
+            this.emit("add-leaves", details);
+        });
         return branch;
     }
 
@@ -137,18 +144,29 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         const x = rotX / this.width;
         const y = rotY / this.height;
         if (this._isAddingLeaves) {
-            window.game.cmd.execute(new AddLeavesCommand({
+            this.emit("add-leaves", {
                 owner: this,
                 x: x,
                 y: y
-            }));
+            });
+            /*window.game.cmd.execute(new AddLeavesCommand({
+                owner: this,
+                x: x,
+                y: y
+            }));*/
         } else {
-            window.game.cmd.execute(new AddBranchCommand({
+            this.emit("add-branch", {
                 angle: 20,
                 owner: this,
                 x: x,
                 y: y
-            }));
+            });
+            /*window.game.cmd.execute(new AddBranchCommand({
+                angle: 20,
+                owner: this,
+                x: x,
+                y: y
+            }));*/
         }
     }
 

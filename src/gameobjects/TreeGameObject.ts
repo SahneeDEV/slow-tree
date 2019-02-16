@@ -94,12 +94,18 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
     private onPointerUp(e: Phaser.Input.Pointer) {
         const x = (e.worldX - this.x) / this.width;
         const y = (e.worldY - this.y) / this.height;
-        window.game.cmd.execute(new AddBranchCommand({
+        this.emit("add-branch", {
             angle: 80,
             owner: this,
             x: x,
             y: y
-        }));
+        });
+        /*window.game.cmd.execute(new AddBranchCommand({
+            angle: 80,
+            owner: this,
+            x: x,
+            y: y
+        }));*/
     }
 
     /**
@@ -109,6 +115,12 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
     public addBranch(details: IBranchDetails): BranchGameObject {
         const branch = new BranchGameObject(this.scene, details);
         this._branchGroup.add(branch);
+        branch.on("add-branch", (details: IBranchDetails) => {
+            this.emit("add-branch", details);
+        });
+        branch.on("add-leaves", (details: ILeavesDetails) => {
+            this.emit("add-leaves", details);
+        });
         return branch;
     }
 

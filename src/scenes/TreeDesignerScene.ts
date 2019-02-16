@@ -48,8 +48,13 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
     create() {
         this._background = new BackgroundGameObject(this);
         this._tree = new TreeGameObject(this, this.cameras.main.width / 2, this.cameras.main.height);
+        this.events.emit("scene-created", this);
     }
 
     update(time: number, deltaTime: number) {
+    }
+
+    public get tree() {
+        return this._tree;
     }
 }

@@ -48,7 +48,11 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import Game from "./../Game";
+import Game from "@/Game";
+import TreeDesignerScene from "@/scenes/TreeDesignerScene";
+import { IBranchDetails, ILeavesDetails } from "@/gameobjects/IBranchContainer";
+import AddBranchCommand from "@/commands/AddBranchCommand";
+import AddLeavesCommand from "@/commands/AddLeavesCommand";
 
 @Component
 export default class App extends Vue {
@@ -56,22 +60,75 @@ export default class App extends Vue {
     super();
   }
 
-  items = [
+  private _game!: Game;
+  private _scene?: TreeDesignerScene;
+  private items = [
     { title: "Home", icon: "dashboard" },
     { title: "About", icon: "question_answer" }
   ];
   right = null;
 
-  created() {
-    window.setImmediate(this.createDeferred);
-  }
-
-  createDeferred() {
+  /**
+   * Called after this Vue component has been fully created, the HTML elements are
+   * ready and is ready for operation.
+   */
+  mounted() {
+    console.log("Component ready, creating game ...", this);
+    // Create the Phaser game and wait for it to be ready.
     this._game = new Game(this.$refs.game as HTMLDivElement);
+    this._game.events.on("ready", this.onGameReady);
     window.game = this._game;
   }
 
-  private _game!: Game;
+  /**
+   * This is called once the Phaser game is ready to run, but no scene has been
+   * loaded yet.
+   */
+  onGameReady() {
+    console.log("Game ready, waiting for scene ...", this._game);
+    // Wait for our only scene to be fully created.
+    const scene = this._game.scene.scenes[0] as TreeDesignerScene;
+    scene.events.on("scene-created", this.onSceneReady);
+  }
+
+  /**
+   * Called once the scene has been loaded and everything is ready to go. (This
+   * event may be called MULTIPLE times if the window is resized and the scene
+   * recreated.)
+   * @param scene The scene that is ready.
+   */
+  onSceneReady(scene: TreeDesignerScene) {
+    console.log("Scene ready,  ...", scene);
+    this._scene = scene;
+    // Hook up scene events
+    scene.tree.on("add-branch", this.onAddBranch);
+    scene.tree.on("add-leaves", this.onAddLeaves);
+  }
+
+  onAddBranch(details: IBranchDetails) {
+    this._game.cmd.execute(new AddBranchCommand(details));
+  }
+
+  onAddLeaves(details: ILeavesDetails) {
+    this._game.cmd.execute(new AddLeavesCommand(details));
+  }
+
+  download() {
+    if (this._scene) {
+      const type = "application/json";
+      const data = JSON.stringify(this._scene.saveGame());
+      const blob = new Blob([data], { type });
+      const a = document.createElement("a");
+      a.download = "slow-tree.json";
+      a.href = window.URL.createObjectURL(blob);
+      a.dataset.downloadurl = [type, a.download, a.href].join(":");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return data;
+    }
+    return "";
+  }
 
   drawer = true;
   mini = true;
