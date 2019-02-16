@@ -112,6 +112,7 @@ import TreeDesignerScene from "@/scenes/TreeDesignerScene";
 import { IBranchDetails, ILeavesDetails } from "@/gameobjects/IBranchContainer";
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
+import Locale, { defaultLocale } from "@/Locale";
 
 @Component
 export default class App extends Vue {
@@ -119,7 +120,9 @@ export default class App extends Vue {
     super();
   }
 
-  private _game!: Game;
+  private locale: Locale = defaultLocale();
+  private strings: {} = {};
+  private game!: Game;
   private scene: TreeDesignerScene | null = null;
   private items = [
     { title: "Home", icon: "dashboard" },
@@ -128,15 +131,31 @@ export default class App extends Vue {
   right = null;
 
   /**
+   * Called when the component is ready to be used, but has no HTMl elements yet.
+   * Useful for non-visual initialization.
+   */
+  created() {
+    fetch(`/assets/locale/${Locale[this.locale]}.json`)
+      .then(data => data.json())
+      .then(json => {
+        console.log("Loaded locale ...", json);
+        this.strings = json;
+        if (this.game) {
+          this.game.cache.json.add("locale", json);
+        }
+      });
+  }
+
+  /**
    * Called after this Vue component has been fully created, the HTML elements are
    * ready and is ready for operation.
    */
   mounted() {
     console.log("Component ready, creating game ...", this);
     // Create the Phaser game and wait for it to be ready.
-    this._game = new Game(this.$refs.game as HTMLDivElement);
-    this._game.events.on("ready", this.onGameReady);
-    window.game = this._game;
+    this.game = new Game(this.$refs.game as HTMLDivElement);
+    this.game.events.on("ready", this.onGameReady);
+    window.game = this.game;
   }
 
   /**
@@ -144,9 +163,10 @@ export default class App extends Vue {
    * loaded yet.
    */
   onGameReady() {
-    console.log("Game ready, waiting for scene ...", this._game);
+    console.log("Game ready, waiting for scene ...", this.game);
     // Wait for our only scene to be fully created.
-    const scene = this._game.scene.scenes[0] as TreeDesignerScene;
+    this.game.cache.json.add("locale", this.strings);
+    const scene = this.game.scene.scenes[0] as TreeDesignerScene;
     scene.events.on("scene-created", this.onSceneReady);
   }
 
@@ -168,14 +188,14 @@ export default class App extends Vue {
    * Called whenever a branch is left-clicked.
    */
   onAddBranch(details: IBranchDetails) {
-    this._game.cmd.execute(new AddBranchCommand(details));
+    this.game.cmd.execute(new AddBranchCommand(details));
   }
 
   /**
    * Called whenever a branch is right-clicked.
    */
   onAddLeaves(details: ILeavesDetails) {
-    this._game.cmd.execute(new AddLeavesCommand(details));
+    this.game.cmd.execute(new AddLeavesCommand(details));
   }
 
   /**
@@ -189,13 +209,14 @@ export default class App extends Vue {
     if (this.scene) {
       const type = "application/json";
       const json = JSON.stringify(this.scene.saveGame());
-      const data = "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
-      console.log(data)
+      const data =
+        "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
+      console.log(data);
       const a = document.body.appendChild(document.createElement("a"));
       a.download = "slow-tree.json";
-      a.href = data
+      a.href = data;
       a.click();
-      console.log(a.outerHTML)
+      console.log(a.outerHTML);
       document.body.removeChild(a);
       return data;
     }
