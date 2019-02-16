@@ -2,10 +2,11 @@
  * Defines a tree type in the game.
  */
 export default class TreeType {
-    public static readonly CONIFER = new TreeType("confiner");
+    public static readonly CONIFER = new TreeType("conifer");
     public static readonly BROADLEAF = new TreeType("broadleaf");
+    public static readonly SAKURA = new TreeType("sakura");
 
-    public static readonly ALL_TREES = [TreeType.CONIFER, TreeType.BROADLEAF];
+    public static readonly ALL_TREES = [TreeType.CONIFER, TreeType.BROADLEAF, TreeType.SAKURA];
 
     /**
      * Finds a tree type by the given ID.

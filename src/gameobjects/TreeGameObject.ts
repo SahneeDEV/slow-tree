@@ -17,7 +17,7 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
     private _branchGroup: Phaser.GameObjects.Group;
     private _x: number;
     private _y: number;
-    private _treeType: TreeType = TreeType.BROADLEAF;
+    private _treeType: TreeType = TreeType.SAKURA;
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         // Assign parameters.

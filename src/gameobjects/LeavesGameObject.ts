@@ -94,6 +94,7 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
         const rotX = offsetX * Math.cos(theta) - offsetY * Math.sin(theta);
         const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
         this._leaves.setScale(this._details.owner.baseScale * this.scale);
+        this._leaves.setAngle(this.angle);
         this._leaves.setPosition(this._details.owner.x + rotX, this._details.owner.y + rotY);
     }
 
