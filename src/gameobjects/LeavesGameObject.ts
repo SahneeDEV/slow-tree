@@ -21,6 +21,7 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
 
         // Create objects
         this._leaves = this.scene.add.image(0, 0, "tree/leaves");
+        this._leaves.setInteractive({ pixelPerfect: true });
 
         this.scene.events.on("update", this.onUpdate, this);
         this.scene.events.once("destroy", this.onDestroy, this);
