@@ -79,10 +79,10 @@
           <v-btn :disabled="!scene" flat @click.stop="onClickUpload()">
             <v-icon>cloud_upload</v-icon>
           </v-btn>
-          <v-btn :disabled="!scene" flat @click.stop="undo()">
+          <v-btn :disabled="!game || !game.cmd.canUndo" flat @click.stop="onClickUndo()">
             <v-icon>undo</v-icon>
           </v-btn>
-          <v-btn :disabled="!scene" flat @click.stop="redo()">
+          <v-btn :disabled="!game || !game.cmd.canRedo" flat @click.stop="onClickRedo()">
             <v-icon>redo</v-icon>
           </v-btn>
         </v-toolbar-items>
@@ -120,7 +120,7 @@ export default class App extends Vue {
 
   private locale: Locale = defaultLocale();
   private strings: {} = {};
-  private game!: Game;
+  private game: Game | null = null;
   private scene: TreeDesignerScene | null = null;
   private items: IMenuItem[] = [
     { id: "home", title: "Home", icon: "dashboard" },
@@ -163,8 +163,8 @@ export default class App extends Vue {
   onGameReady() {
     console.log("Game ready, waiting for scene ...", this.game);
     // Wait for our only scene to be fully created.
-    this.game.cache.json.add("locale", this.strings);
-    const scene = this.game.scene.scenes[0] as TreeDesignerScene;
+    this.game!.cache.json.add("locale", this.strings);
+    const scene = this.game!.scene.scenes[0] as TreeDesignerScene;
     scene.events.on("scene-created", this.onSceneReady);
   }
 
@@ -205,7 +205,7 @@ export default class App extends Vue {
    * Called whenever a branch is left-clicked.
    */
   onAddBranch(details: IBranchDetails) {
-    this.game.cmd.execute(new AddBranchCommand(details));
+    this.game!.cmd.execute(new AddBranchCommand(details));
     this.cache();
   }
 
@@ -213,7 +213,7 @@ export default class App extends Vue {
    * Called whenever a branch is right-clicked.
    */
   onAddLeaves(details: ILeavesDetails) {
-    this.game.cmd.execute(new AddLeavesCommand(details));
+    this.game!.cmd.execute(new AddLeavesCommand(details));
     this.cache();
   }
 
@@ -278,13 +278,21 @@ export default class App extends Vue {
     }
   }
 
-  undo() {
-    this.game.cmd.undo();
+  onClickUndo() {
+    const game = this.game;
+    if (!game) {
+      throw new Error("No game available");
+    }
+    game.cmd.undo();
     this.cache();
   }
 
-  redo() {
-    this.game.cmd.redo();
+  onClickRedo() {
+    const game = this.game;
+    if (!game) {
+      throw new Error("No game available");
+    }
+    game.cmd.redo();
     this.cache();
   }
 

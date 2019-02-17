@@ -32,6 +32,20 @@ export default class CommandManager {
         }
     }
 
+    /**
+     * Can we currently undo?
+     */
+    public get canUndo() {
+        return this._commands.length !== 0;
+    }
+
+    /**
+     * Can we currently redo?
+     */
+    public get canRedo() {
+        return false;
+    }
+
     public redo(): never {
         throw new Error("Not implemented");
     }
