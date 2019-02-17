@@ -4,14 +4,16 @@ import ICommand from "./ICommand";
  * This class is used to execute commands aswell as remember then in order to undo them later.
  */
 export default class CommandManager {
-    private _commands: ICommand[] = [];
+    private _undo: ICommand[] = [];
+    private _redo: ICommand[] = [];
 
     /**
      * Executes the given command an places it on the undo stack.
      * @param command The command.
      */
     public execute(command: ICommand) {
-        this._commands.push(command);
+        this._redo = [];
+        this._undo.push(command);
         console.log("Executing command", command);
         command.execute();
     }
@@ -22,10 +24,28 @@ export default class CommandManager {
      * @returns The command that was undone, or `null`.
      */
     public undo(): ICommand | null {
-        const command = this._commands.pop();
+        const command = this._undo.pop();
         if (command) {
             console.log("Undoing command", command);
             command.undo();
+            this._redo.push(command);
+            return command;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Redoes the last undone command and removes it from the redo stack. If no command has 
+     * been undone before no action is performed.
+     * @returns The command that was redone, or `null`.
+     */
+    public redo(): ICommand | null {
+        const command = this._redo.pop();
+        if (command) {
+            console.log("Redoing command", command);
+            command.execute();
+            this._undo.push(command);
             return command;
         } else {
             return null;
@@ -36,17 +56,13 @@ export default class CommandManager {
      * Can we currently undo?
      */
     public get canUndo() {
-        return this._commands.length !== 0;
+        return this._undo.length !== 0;
     }
 
     /**
      * Can we currently redo?
      */
     public get canRedo() {
-        return false;
-    }
-
-    public redo(): never {
-        throw new Error("Not implemented");
+        return this._redo.length !== 0;
     }
 }
