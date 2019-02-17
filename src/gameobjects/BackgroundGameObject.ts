@@ -27,6 +27,7 @@ export default class BackgroundGameObject extends Phaser.GameObjects.GameObject 
 
         this._backgroundImage = this.scene.add.image(0, 0, backgroundSkin.id);
         this._backgroundImage.setOrigin(0, 0);
+        this._backgroundImage.setDepth(-1);
         const { width, height } = cover({ img: this._backgroundImage, container: this.scene.cameras.main });
         const scale = width > height ? (width / this._backgroundImage.width) : (height / this._backgroundImage.height);
         this._backgroundImage.setScale(scale);
