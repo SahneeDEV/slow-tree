@@ -16,7 +16,7 @@ export default class BackgroundSkin {
     private _path: string;
 
     constructor(id: string, filename: string) {
-        this._id = "background/" + id;
+        this._id = id;
         this._path = "/assets/images/background/" + filename;
     }
 
