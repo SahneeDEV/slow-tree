@@ -56,15 +56,6 @@
                   </v-flex>
                   <v-flex xs12 sm6 xs4>
                     <v-select
-                      v-model="leaf"
-                      :items="leaves"
-                      label="Leaf"
-                      data-vv-name="leaf"
-                      required
-                    ></v-select>
-                  </v-flex>
-                  <v-flex xs12 sm6 xs4>
-                    <v-select
                       v-model="background"
                       :items="backgrounds"
                       label="Background"
@@ -112,6 +103,8 @@ import { IBranchDetails, ILeavesDetails } from "@/gameobjects/IBranchContainer";
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
 import Locale, { defaultLocale } from "@/Locale";
+import BackgroundSkin from "@/BackgroundSkin";
+import TreeType from "@/TreeType";
 
 @Component
 export default class App extends Vue {
@@ -230,14 +223,40 @@ export default class App extends Vue {
     this.game.cmd.redo();
   }
 
+  getAllBackgrounds() {
+    let temp:string[] = [];
+    let i = 0;
+
+    BackgroundSkin.ALL_BACKGROUNDS.forEach(element =>  {
+      temp[i] = element.id
+
+      i++;
+    });
+
+    return temp
+  }
+
+  getAllTrees() {
+    let temp:string[] = [];
+    let i = 0;
+
+    TreeType.ALL_TREES.forEach(element =>  {
+      temp[i] = element.id
+
+      i++;
+    });
+
+    return temp
+  }
+
   drawer = true;
   mini = true;
 
   dialog = false;
 
   leaves = ["Laubblätter", "Nadelblätter"];
-  trees = ["Normal Tree", "Not Normal Tree"];
-  backgrounds = ["Default", "Forest", "Over Trees"];
+  trees = this.getAllTrees();
+  backgrounds = this.getAllBackgrounds();
 
   tree = "Normal Tree";
   leaf = "Laubblätter";
