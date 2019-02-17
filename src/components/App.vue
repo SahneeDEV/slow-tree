@@ -85,7 +85,7 @@
           <v-btn :disabled="!scene" flat @click.stop="onClickDownload()">
             <v-icon>cloud_download</v-icon>
           </v-btn>
-          <v-btn flat>
+          <v-btn :disabled="!scene" flat @click.stop="onClickUpload()">
             <v-icon>cloud_upload</v-icon>
           </v-btn>
           <v-btn flat>
@@ -204,22 +204,49 @@ export default class App extends Vue {
     this.download();
   }
 
-  download() {
-    if (this.scene) {
-      const type = "application/json";
-      const json = JSON.stringify(this.scene.saveGame());
-      const data =
-        "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
-      console.log(data);
-      const a = document.body.appendChild(document.createElement("a"));
-      a.download = "slow-tree.json";
-      a.href = data;
-      a.click();
-      console.log(a.outerHTML);
-      document.body.removeChild(a);
-      return data;
+  /**
+   * Called when the user clicks on the upload button.
+   */
+  onClickUpload() {
+    this.upload();
+  }
+
+  upload() {
+    const scene = this.scene;
+    if (!scene) {
+      throw new Error("No scene available");
     }
-    return "";
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".st";
+    input.onchange = (e: Event) => {
+      const el = e.target as HTMLInputElement;
+      const file = el.files![0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const json = JSON.parse(reader.result);
+        console.log("Uploaded file ...", json);
+        scene.loadGame(json);
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  download() {
+    if (!this.scene) {
+      throw new Error("No scene available");
+    }
+    const type = "application/json";
+    const json = JSON.stringify(this.scene.saveGame());
+    const data = "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
+    const a = document.body.appendChild(document.createElement("a"));
+    a.download = "slow-tree.st";
+    a.href = data;
+    a.click();
+    document.body.removeChild(a);
+    console.log("Downloaded file ...", data);
+    return data;
   }
 
   drawer = true;
