@@ -252,7 +252,7 @@ export default class App extends Vue {
       const file = el.files![0];
       const reader = new FileReader();
       reader.onload = () => {
-        const json = JSON.parse(reader.result);
+        const json = JSON.parse(reader.result as string);
         console.log("Uploaded file ...", json);
         scene.loadGame(json);
         this.cache();
