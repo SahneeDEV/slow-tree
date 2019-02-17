@@ -269,9 +269,6 @@ export default class App extends Vue {
 
   tree = "broadleaf";
   background = this.getDefaultBackground()
-
-
-  
 }
 </script>
 
