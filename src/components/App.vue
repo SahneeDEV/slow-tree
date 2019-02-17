@@ -176,11 +176,17 @@ export default class App extends Vue {
    * @param scene The scene that is ready.
    */
   onSceneReady(scene: TreeDesignerScene) {
-    console.log("Scene ready,  ...", scene);
+    console.log("Scene ready, waiting for input ...", scene);
     this.scene = scene;
     // Hook up scene events
     scene.tree.on("add-branch", this.onAddBranch);
     scene.tree.on("add-leaves", this.onAddLeaves);
+    // Check cache
+    const cache = localStorage.getItem("cache");
+    if (cache) {
+      const json = JSON.parse(cache);
+      scene.loadGame(json);
+    }
   }
 
   /**
@@ -188,6 +194,7 @@ export default class App extends Vue {
    */
   onAddBranch(details: IBranchDetails) {
     this.game.cmd.execute(new AddBranchCommand(details));
+    this.cache();
   }
 
   /**
@@ -195,6 +202,7 @@ export default class App extends Vue {
    */
   onAddLeaves(details: ILeavesDetails) {
     this.game.cmd.execute(new AddLeavesCommand(details));
+    this.cache();
   }
 
   /**
@@ -209,6 +217,12 @@ export default class App extends Vue {
    */
   onClickUpload() {
     this.upload();
+  }
+
+  cache() {
+    if (this.scene) {
+      localStorage.setItem("cache", JSON.stringify(this.scene.saveGame()));
+    }
   }
 
   upload() {
@@ -227,6 +241,7 @@ export default class App extends Vue {
         const json = JSON.parse(reader.result);
         console.log("Uploaded file ...", json);
         scene.loadGame(json);
+        this.cache();
       };
       reader.readAsText(file);
     };
