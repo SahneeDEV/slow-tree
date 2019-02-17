@@ -249,6 +249,15 @@ export default class App extends Vue {
     return temp
   }
 
+  getDefaultBackground() {
+    if (this.scene) {
+      return this.scene.background.backgroundImage.id;
+    }
+    else {
+      return "tyler-lastovich"
+    }
+  }
+
   drawer = true;
   mini = true;
 
@@ -258,9 +267,11 @@ export default class App extends Vue {
   trees = this.getAllTrees();
   backgrounds = this.getAllBackgrounds();
 
-  tree = "Normal Tree";
-  leaf = "Laubblätter";
-  background = "Default";
+  tree = "broadleaf";
+  background = this.getDefaultBackground()
+
+
+  
 }
 </script>
 

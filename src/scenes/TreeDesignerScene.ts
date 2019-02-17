@@ -60,4 +60,8 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
     public get tree() {
         return this._tree;
     }
+
+    public get background() {
+        return this._background;
+    }
 }
