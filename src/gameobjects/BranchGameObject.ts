@@ -90,6 +90,11 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         return this._treeType;
     }
 
+    public set treeType(treeType: TreeType) {
+        this._treeType = treeType;
+        this._branch.setTexture(`tree/${this._treeType.id}/branch`);
+    }
+
     public get x() {
         return this._branch.x;
     }

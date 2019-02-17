@@ -13,7 +13,7 @@ export interface JSON {
  * A tree in the application.
  */
 export default class TreeGameObject extends Phaser.GameObjects.GameObject implements ITreeElement, ISaveable<JSON> {
-    private _trunk: Phaser.GameObjects.Image;
+    private _trunk!: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
     private _x: number;
     private _y: number;
@@ -25,15 +25,14 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         this._x = x;
         this._y = y;
 
-        // Bind events
-        this.onPointerUp = this.onPointerUp.bind(this);
-
         // Create objects
-        this._trunk = this.scene.add.image(x, y, `tree/${this.treeType.id}/trunk`);
+        this._trunk = this.scene.add.image(this._x, this._y, `tree/${this.treeType.id}/trunk`);
         this._trunk.setOrigin(0.5, 1);
         this._trunk.setScale(this.baseScale * this.scale);
         this._trunk.setInteractive({ pixelPerfect: true });
-        this._trunk.on("pointerup", this.onPointerUp);
+        this._trunk.on("pointerup", this.onPointerUp, this);
+        this.treeType = TreeType.SAKURA;
+        this.once("destroy", this.onDestroy, this);
 
         this._branchGroup = this.scene.add.group();
 
@@ -52,7 +51,8 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
     }
 
     loadGame(json: JSON): void {
-        this._treeType = TreeType.byId(json.type) || TreeType.BROADLEAF;
+        this._branchGroup.clear(true, true);
+        this.treeType = TreeType.byId(json.type) || TreeType.BROADLEAF;
         for (let i = 0; i < json.branches.length; i++) {
             const branch = json.branches[i];
             this.addBranch({
@@ -67,6 +67,11 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
 
     public get treeType() {
         return this._treeType;
+    }
+
+    public set treeType(type: TreeType) {
+        this._treeType = type;
+        this._trunk.setTexture(`tree/${this.treeType.id}/trunk`)
     }
 
     public get x() {
@@ -110,6 +115,12 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
             x: x,
             y: y
         });
+    }
+
+    private onDestroy() {
+        this._trunk.destroy(true);
+        this._branchGroup.destroy(true);
+        this._trunk.off("pointerup", this.onPointerUp, this);
     }
 
     /**

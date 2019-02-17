@@ -39,6 +39,11 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
         return this._treeType;
     }
 
+    public set treeType(treeType: TreeType) {
+        this._treeType = treeType;
+        this._leaves.setTexture(`tree/${this._treeType.id}/leaves`);
+    }
+
     public get angle() {
         return 0;
     }
@@ -84,7 +89,7 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     loadGame(json: JSON): void {
-        this._treeType = TreeType.byId(json.type) || TreeType.BROADLEAF;
+        this.treeType = TreeType.byId(json.type) || TreeType.BROADLEAF;
     }
 
     private onUpdate(time: number, deltaTime: number) {
