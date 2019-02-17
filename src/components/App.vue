@@ -24,7 +24,7 @@
         <v-divider></v-divider>
 
         <v-list dense class="pt-0">
-          <v-list-tile v-for="item in items" :key="item.title">
+          <v-list-tile v-for="item in items" :key="item.id" v-on:click.stop="onClickMenuItem(item)">
             <v-list-tile-action>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-tile-action>
@@ -106,6 +106,12 @@ import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
 
+interface IMenuItem {
+  id: string,
+  title: string,
+  icon: string,
+}
+
 @Component
 export default class App extends Vue {
   constructor() {
@@ -116,9 +122,9 @@ export default class App extends Vue {
   private strings: {} = {};
   private game!: Game;
   private scene: TreeDesignerScene | null = null;
-  private items = [
-    { title: "Home", icon: "dashboard" },
-    { title: "About", icon: "question_answer" }
+  private items: IMenuItem[] = [
+    { id: "home", title: "Home", icon: "dashboard" },
+    { id: "about", title: "About", icon: "question_answer" }
   ];
   right = null;
 
@@ -179,6 +185,19 @@ export default class App extends Vue {
     if (cache) {
       const json = JSON.parse(cache);
       scene.loadGame(json);
+    }
+  }
+
+  /**
+   * Called whenever a menu item is clicked.
+   * @param item The menu item.
+   */
+  onClickMenuItem(item: IMenuItem) {
+    switch(item.id) {
+      case "about": {
+        window.open("https://sahnee.de/");
+        break;
+      }
     }
   }
 
@@ -318,6 +337,7 @@ export default class App extends Vue {
 
 <style>
 html {
+  user-select: none;
   overflow-y: hidden !important;
 }
 </style>
