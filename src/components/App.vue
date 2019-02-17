@@ -70,8 +70,8 @@
         </v-dialog>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn flat>
-            <v-icon>create</v-icon>
+          <v-btn :disabled="!scene" flat @click.stop="onClickDelete()">
+            <v-icon>delete</v-icon>
           </v-btn>
           <v-btn :disabled="!scene" flat @click.stop="onClickDownload()">
             <v-icon>cloud_download</v-icon>
@@ -79,10 +79,10 @@
           <v-btn :disabled="!scene" flat @click.stop="onClickUpload()">
             <v-icon>cloud_upload</v-icon>
           </v-btn>
-          <v-btn flat @click.stop="undo()">
+          <v-btn :disabled="!scene" flat @click.stop="undo()">
             <v-icon>undo</v-icon>
           </v-btn>
-          <v-btn flat @click.stop="redo()">
+          <v-btn :disabled="!scene" flat @click.stop="redo()">
             <v-icon>redo</v-icon>
           </v-btn>
         </v-toolbar-items>
@@ -221,23 +221,25 @@ export default class App extends Vue {
    * Called when the user clicks on the download button.
    */
   onClickDownload() {
-    this.download();
+    if (!this.scene) {
+      throw new Error("No scene available");
+    }
+    const type = "application/json";
+    const json = JSON.stringify(this.scene.saveGame());
+    const data = "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
+    const a = document.body.appendChild(document.createElement("a"));
+    a.download = "slow-tree.st";
+    a.href = data;
+    a.click();
+    document.body.removeChild(a);
+    console.log("Downloaded file ...", data);
+    return data;
   }
 
   /**
    * Called when the user clicks on the upload button.
    */
   onClickUpload() {
-    this.upload();
-  }
-
-  cache() {
-    if (this.scene) {
-      localStorage.setItem("cache", JSON.stringify(this.scene.saveGame()));
-    }
-  }
-
-  upload() {
     const scene = this.scene;
     if (!scene) {
       throw new Error("No scene available");
@@ -260,28 +262,30 @@ export default class App extends Vue {
     input.click();
   }
 
-  download() {
-    if (!this.scene) {
-      throw new Error("No scene available");
+  /**
+   * Called when the user clicks on the delete button.
+   */
+  onClickDelete() {
+    if (this.scene) {
+      this.scene.clear();
     }
-    const type = "application/json";
-    const json = JSON.stringify(this.scene.saveGame());
-    const data = "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
-    const a = document.body.appendChild(document.createElement("a"));
-    a.download = "slow-tree.st";
-    a.href = data;
-    a.click();
-    document.body.removeChild(a);
-    console.log("Downloaded file ...", data);
-    return data;
+    localStorage.removeItem("cache");
+  }
+
+  cache() {
+    if (this.scene) {
+      localStorage.setItem("cache", JSON.stringify(this.scene.saveGame()));
+    }
   }
 
   undo() {
     this.game.cmd.undo();
+    this.cache();
   }
 
   redo() {
     this.game.cmd.redo();
+    this.cache();
   }
 
   getAllBackgrounds() {

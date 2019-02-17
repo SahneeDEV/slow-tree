@@ -34,6 +34,11 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
         this._background.backgroundImage = BackgroundSkin.byId(json.background) || BackgroundSkin.random();
     }
 
+    public clear() {
+        this._tree.clear();
+        this._background.backgroundImage = BackgroundSkin.random();
+    }
+
     preload() {
         this._application = this.game as SlowTreeGame;
         // Test images

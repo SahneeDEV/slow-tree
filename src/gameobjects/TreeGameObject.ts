@@ -1,4 +1,4 @@
-import  TreeType  from "@/TreeType";
+import TreeType from "@/TreeType";
 import BranchGameObject, { JSON as BranchJSON } from "./BranchGameObject";
 import ITreeElement, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
 import LeavesGameObject from "./LeavesGameObject";
@@ -17,7 +17,7 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
     private _branchGroup: Phaser.GameObjects.Group;
     private _x: number;
     private _y: number;
-    private _treeType: TreeType = TreeType.SAKURA;
+    private _treeType: TreeType = TreeType.random();
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         // Assign parameters.
@@ -31,13 +31,18 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         this._trunk.setScale(this.baseScale * this.scale);
         this._trunk.setInteractive({ pixelPerfect: true });
         this._trunk.on("pointerup", this.onPointerUp, this);
-        this.treeType = TreeType.SAKURA;
+        this.treeType = this._treeType;
         this.once("destroy", this.onDestroy, this);
 
         this._branchGroup = this.scene.add.group();
 
         // Add us to the scene
         scene.add.existing(this);
+    }
+
+    public clear() {
+        this.treeType = TreeType.random();
+        this._branchGroup.clear(true, true);
     }
 
     saveGame(): JSON {

@@ -8,6 +8,10 @@ export default class TreeType {
 
     public static readonly ALL_TREES = [TreeType.CONIFER, TreeType.BROADLEAF, TreeType.SAKURA];
 
+    public static random() {
+        return TreeType.ALL_TREES[Math.round(Math.random() * (TreeType.ALL_TREES.length - 1))]
+    }
+
     /**
      * Finds a tree type by the given ID.
      * @param id The ID of the tree type to find.
