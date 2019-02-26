@@ -60,6 +60,7 @@
                       :items="backgrounds"
                       label="Background"
                       data-vv-name="background"
+                      v-on:change="changeBackground"
                       required
                     ></v-select>
                   </v-flex>
@@ -121,6 +122,7 @@ export default class App extends Vue {
     { title: "About", icon: "question_answer" }
   ];
   right = null;
+  background: string | null = null;
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
@@ -174,6 +176,8 @@ export default class App extends Vue {
     // Hook up scene events
     scene.tree.on("add-branch", this.onAddBranch);
     scene.tree.on("add-leaves", this.onAddLeaves);
+    scene.background.on("new-background", this.onNewBackground)
+    this.onNewBackground(scene.background.backgroundImage)
   }
 
   /**
@@ -249,13 +253,24 @@ export default class App extends Vue {
     return temp
   }
 
-  getDefaultBackground() {
-    if (this.scene) {
-      return this.scene.background.backgroundImage.id;
+  onNewBackground(newBackground: BackgroundSkin) {
+    this.background = newBackground.id;
+  }
+
+  changeBackground() {
+    if (this.scene !== null) {
+      if (this.background !== null) {
+        let newBackground = BackgroundSkin.byId(this.background)
+        if (newBackground == null) {
+          newBackground = BackgroundSkin.random();
+          this.scene.background.backgroundImage = newBackground
+        }
+        if (newBackground !== null) {
+          this.scene.background.backgroundImage = newBackground
+        }
+      }
     }
-    else {
-      return "tyler-lastovich"
-    }
+    
   }
 
   drawer = true;
@@ -266,9 +281,7 @@ export default class App extends Vue {
   leaves = ["Laubblätter", "Nadelblätter"];
   trees = this.getAllTrees();
   backgrounds = this.getAllBackgrounds();
-
   tree = "broadleaf";
-  background = this.getDefaultBackground()
 }
 </script>
 
