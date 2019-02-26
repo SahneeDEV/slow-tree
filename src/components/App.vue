@@ -89,6 +89,7 @@
       </v-toolbar>
       <v-content>
         <div id="game" ref="game"></div>
+        <STHoverInformation v-if="game && scene" :scene="scene" :game="game"/>
       </v-content>
       <v-footer app></v-footer>
     </v-app>
@@ -99,21 +100,22 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Game from "@/Game";
 import TreeDesignerScene from "@/scenes/TreeDesignerScene";
-import { IBranchDetails, ILeavesDetails } from "@/gameobjects/IBranchContainer";
+import { IBranchDetails, ILeavesDetails, IDetailsWithOwner } from "@/gameobjects/IBranchContainer";
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
 import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
+import STHoverInformation from "./HoverInformation.vue";
 
 interface IMenuItem {
-  id: string,
-  title: string,
-  icon: string,
+  id: string;
+  title: string;
+  icon: string;
 }
 
-@Component
-export default class App extends Vue {
+@Component({ components: { STHoverInformation } })
+export default class STApp extends Vue {
   constructor() {
     super();
   }
@@ -193,7 +195,7 @@ export default class App extends Vue {
    * @param item The menu item.
    */
   onClickMenuItem(item: IMenuItem) {
-    switch(item.id) {
+    switch (item.id) {
       case "about": {
         window.open("https://sahnee.de/");
         break;
@@ -204,16 +206,17 @@ export default class App extends Vue {
   /**
    * Called whenever a branch is left-clicked.
    */
-  onAddBranch(details: IBranchDetails) {
-    this.game!.cmd.execute(new AddBranchCommand(details));
+  onAddBranch(details: IBranchDetails & IDetailsWithOwner) {
+    console.log("onAddBranch")
+    this.game!.cmd.execute(new AddBranchCommand(this.scene!.tree, details.parent.id, details));
     this.cache();
   }
 
   /**
    * Called whenever a branch is right-clicked.
    */
-  onAddLeaves(details: ILeavesDetails) {
-    this.game!.cmd.execute(new AddLeavesCommand(details));
+  onAddLeaves(details: ILeavesDetails & IDetailsWithOwner) {
+    this.game!.cmd.execute(new AddLeavesCommand(this.scene!.tree, details.parent.id, details));
     this.cache();
   }
 
@@ -297,29 +300,29 @@ export default class App extends Vue {
   }
 
   getAllBackgrounds() {
-    let temp:string[] = [];
+    let temp: string[] = [];
     let i = 0;
 
-    BackgroundSkin.ALL_BACKGROUNDS.forEach(element =>  {
-      temp[i] = element.id
+    BackgroundSkin.ALL_BACKGROUNDS.forEach(element => {
+      temp[i] = element.id;
 
       i++;
     });
 
-    return temp
+    return temp;
   }
 
   getAllTrees() {
-    let temp:string[] = [];
+    let temp: string[] = [];
     let i = 0;
 
-    TreeType.ALL_TREES.forEach(element =>  {
-      temp[i] = element.id
+    TreeType.ALL_TREES.forEach(element => {
+      temp[i] = element.id;
 
       i++;
     });
 
-    return temp
+    return temp;
   }
 
   drawer = true;

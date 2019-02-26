@@ -1,23 +1,24 @@
-import { ILeavesDetails } from "./../gameobjects/IBranchContainer";
-import ICommand from "./ICommand";
-import LeavesGameObject from "../gameobjects/LeavesGameObject";
+import { ILeavesDetails } from "@/gameobjects/IBranchContainer";
+import ICommand from "@/commands/ICommand";
+import LeavesGameObject from "@/gameobjects/LeavesGameObject";
+import TreeGameObject from "@/gameobjects/TreeGameObject";
 
 export default class AddLeavesCommand implements ICommand {
-    private _details: ILeavesDetails;
-    private _leaves: LeavesGameObject | null;
+    private leaves: LeavesGameObject | null = null;
 
-    constructor(details: ILeavesDetails) {
-        this._details = details;
-        this._leaves = null;
+    constructor(private tree: TreeGameObject, private parent: string, private details: ILeavesDetails) {
     }
 
-    execute(): void {
-        this._leaves = this._details.owner.addLeaves(this._details);
+    do(): void {
+        const owner = this.tree.find(this.parent);
+        if (owner) {
+            this.leaves = owner.addLeaves(this.details);
+        }
     }
     
     undo(): void {
-        if (this._leaves) {
-            this._leaves.destroy(true);
+        if (this.leaves) {
+            this.leaves.destroy();
         }
     }
 }

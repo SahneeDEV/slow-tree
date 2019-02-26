@@ -5,6 +5,7 @@ import rad from "@/utils/rad";
 import BranchGameObject from "./BranchGameObject";
 
 export interface JSON {
+    id: string;
     x: number;
     y: number;
     type: string;
@@ -17,12 +18,14 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
     private _treeType: TreeType;
     private _details: ILeavesDetails;
     private _leaves: Phaser.GameObjects.Image;
+    private _owner: ITreeElement;
 
-    constructor(scene: Phaser.Scene, details: ILeavesDetails) {
+    constructor(scene: Phaser.Scene, details: ILeavesDetails, owner: ITreeElement) {
         // Assign parameters.
         super(scene, LeavesGameObject.name);
         this._details = details;
         this._treeType = details.treeType;
+        this._owner = owner;
 
         // Create objects
         this._leaves = this.scene.add.image(0, 0, `tree/${this._treeType.id}/leaves`);
@@ -49,7 +52,7 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     public get scale() {
-        return this._details.owner.scale * 0.9;
+        return this.owner.scale * 0.9;
     }
 
     public get x() {
@@ -69,7 +72,22 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     public get baseScale() {
-        return this._details.owner.baseScale;
+        return this.owner.baseScale;
+    }
+
+    public get owner() {
+        return this._owner;
+    }
+
+    public get id() {
+        return this._details.id;
+    }
+
+    public find(id: string): LeavesGameObject | null {
+        if (id === this.id) {
+            return this;
+        }
+        return null;
     }
 
     addBranch(details: IBranchDetails): BranchGameObject {
@@ -82,6 +100,7 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
 
     saveGame(): JSON {
         return {
+            id: this._details.id,
             x: this._details.x,
             y: this._details.y,
             type: this._treeType.id
@@ -93,14 +112,14 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     private onUpdate(time: number, deltaTime: number) {
-        const offsetX = this._details.owner.width * this._details.x;
-        const offsetY = this._details.owner.height * this._details.y;
-        const theta = rad(this._details.owner.angle);
+        const offsetX = this.owner.width * this._details.x;
+        const offsetY = this.owner.height * this._details.y;
+        const theta = rad(this.owner.angle);
         const rotX = offsetX * Math.cos(theta) - offsetY * Math.sin(theta);
         const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
-        this._leaves.setScale(this._details.owner.baseScale * this.scale);
+        this._leaves.setScale(this.owner.baseScale * this.scale);
         this._leaves.setAngle(this.angle);
-        this._leaves.setPosition(this._details.owner.x + rotX, this._details.owner.y + rotY);
+        this._leaves.setPosition(this.owner.x + rotX, this.owner.y + rotY);
     }
 
     private onDestroy() {

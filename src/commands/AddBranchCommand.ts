@@ -1,23 +1,25 @@
-import { IBranchDetails } from "./../gameobjects/IBranchContainer";
-import ICommand from "./ICommand";
-import BranchGameObject from "../gameobjects/BranchGameObject";
+import { IBranchDetails } from "@/gameobjects/IBranchContainer";
+import BranchGameObject from "@/gameobjects/BranchGameObject";
+import TreeGameObject from "@/gameobjects/TreeGameObject";
+import ICommand from "@/commands/ICommand";
 
 export default class AddBranchCommand implements ICommand {
-    private _details: IBranchDetails;
-    private _branch: BranchGameObject | null;
+    private branch: BranchGameObject | null = null;
 
-    constructor(details: IBranchDetails) {
-        this._details = details;
-        this._branch = null;
+    constructor(private tree: TreeGameObject, private parent: string, private details: IBranchDetails) {
     }
 
-    execute(): void {
-        this._branch = this._details.owner.addBranch(this._details);
+    do(): void {
+        const owner = this.tree.find(this.parent);
+        console.log("owner is", this.details.id, owner)
+        if (owner) {
+            this.branch = owner.addBranch(this.details);
+        }
     }
-    
+
     undo(): void {
-        if (this._branch) {
-            this._branch.destroy(true);
+        if (this.branch) {
+            this.branch.destroy();
         }
     }
 }

@@ -1,10 +1,12 @@
-import  TreeType  from "@/TreeType";
+import TreeType from "@/TreeType";
 import ISaveable from "@/ISaveable";
 import ITreeElement, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
 import LeavesGameObject, { JSON as LeavesJSON } from "./LeavesGameObject";
 import rad from "../utils/rad";
+import uuid from "@/utils/uuid";
 
 export interface JSON {
+    id: string;
     x: number;
     y: number;
     angle: number;
@@ -23,12 +25,14 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     private _leavesGroup: Phaser.GameObjects.Group;
     private _isAddingLeaves: boolean = false;
     private _treeType: TreeType;
+    private _owner: ITreeElement;
 
-    constructor(scene: Phaser.Scene, details: IBranchDetails) {
+    constructor(scene: Phaser.Scene, details: IBranchDetails, owner: ITreeElement) {
         // Assign parameters.
         super(scene, BranchGameObject.name);
         this._details = details;
         this._treeType = details.treeType;
+        this._owner = owner;
 
         // Create objects
         this._branch = this.scene.add.image(0, 0, `tree/${this._treeType.id}/branch`);
@@ -49,6 +53,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
 
     saveGame(): JSON {
         return {
+            id: this._details.id,
             x: this._details.x,
             y: this._details.y,
             angle: this._details.angle,
@@ -68,20 +73,20 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         for (let i = 0; i < json.branches.length; i++) {
             const branch = json.branches[i];
             this.addBranch({
+                id: branch.id,
                 x: branch.x,
                 y: branch.y,
                 angle: branch.angle,
-                treeType: this.treeType,
-                owner: this
+                treeType: this.treeType
             }).loadGame(branch);
         }
         for (let i = 0; i < json.leaves.length; i++) {
             const leaves = json.leaves[i];
             this.addLeaves({
+                id: leaves.id,
                 x: leaves.x,
                 y: leaves.y,
-                treeType: this.treeType,
-                owner: this
+                treeType: this.treeType
             }).loadGame(leaves);
         }
     }
@@ -112,29 +117,58 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     public get baseScale() {
-        return this._details.owner.baseScale;
+        return this.owner.baseScale;
     }
 
     public get scale() {
-        return this._details.owner.scale * 0.85;
+        return this.owner.scale * 0.85;
+    }
+
+    public get owner() {
+        return this._owner;
+    }
+
+    public get id() {
+        return this._details.id;
     }
 
     public get angle() {
         if (this._details.x < 0) {
-            return this._details.owner.angle - this._details.angle;
+            return this.owner.angle - this._details.angle;
         } else {
-            return this._details.owner.angle + this._details.angle;
+            return this.owner.angle + this._details.angle;
         }
     }
 
+    public find(id: string): ITreeElement | null {
+        if (id === this.id) {
+            return this;
+        }
+        for (const go of this._branchGroup.children.entries) {
+            const branch = go as BranchGameObject;
+            const foundIt = branch.find(id);
+            if (foundIt) {
+                return foundIt;
+            }
+        }
+        for (const go of this._leavesGroup.children.entries) {
+            const leaves = go as LeavesGameObject;
+            const foundIt = leaves.find(id);
+            if (foundIt) {
+                return foundIt;
+            }
+        }
+        return null;
+    }
+
     public addLeaves(details: ILeavesDetails): LeavesGameObject {
-        const leaves = new LeavesGameObject(this.scene, details);
+        const leaves = new LeavesGameObject(this.scene, details, this);
         this._leavesGroup.add(leaves);
         return leaves;
     }
 
     public addBranch(details: IBranchDetails): BranchGameObject {
-        const branch = new BranchGameObject(this.scene, details);
+        const branch = new BranchGameObject(this.scene, details, this);
         this._branchGroup.add(branch);
         branch.on("add-branch", (details: IBranchDetails) => {
             this.emit("add-branch", details);
@@ -159,15 +193,17 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         const y = rotY / this.height;
         if (this._isAddingLeaves) {
             this.emit("add-leaves", {
-                owner: this,
+                id: uuid(),
+                parent: this,
                 treeType: this.treeType,
                 x: x,
                 y: y
             });
         } else {
             this.emit("add-branch", {
+                id: uuid(),
+                parent: this,
                 angle: 20,
-                owner: this,
                 treeType: this.treeType,
                 x: x,
                 y: y
@@ -176,14 +212,14 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     private onUpdate(time: number, deltaTime: number) {
-        const offsetX = this._details.owner.width * this._details.x;
-        const offsetY = this._details.owner.height * this._details.y;
-        const theta = rad(this._details.owner.angle);
+        const offsetX = this.owner.width * this._details.x;
+        const offsetY = this.owner.height * this._details.y;
+        const theta = rad(this.owner.angle);
         const rotX = offsetX * Math.cos(theta) - offsetY * Math.sin(theta);
         const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
-        this._branch.setScale(this._details.owner.baseScale * this.scale);
+        this._branch.setScale(this.owner.baseScale * this.scale);
         this._branch.setAngle(this.angle);
-        this._branch.setPosition(this._details.owner.x + rotX, this._details.owner.y + rotY);
+        this._branch.setPosition(this.owner.x + rotX, this.owner.y + rotY);
     }
 
     private onDestroy() {

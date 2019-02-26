@@ -5,7 +5,7 @@ export default interface ICommand {
     /**
      * Executes the command.
      */
-    execute(): void;
+    do(): void;
 
     /**
      * Undoes the command. Assumes that the command was executed before.

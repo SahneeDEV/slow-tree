@@ -63,6 +63,7 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
     }
 
     update(time: number, deltaTime: number) {
+        
     }
 
     public get tree() {

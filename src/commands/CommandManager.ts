@@ -15,7 +15,7 @@ export default class CommandManager {
         this._redo = [];
         this._undo.push(command);
         console.log("Executing command", command);
-        command.execute();
+        command.do();
     }
 
     /**
@@ -44,7 +44,7 @@ export default class CommandManager {
         const command = this._redo.pop();
         if (command) {
             console.log("Redoing command", command);
-            command.execute();
+            command.do();
             this._undo.push(command);
             return command;
         } else {
