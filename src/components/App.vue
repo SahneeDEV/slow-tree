@@ -339,9 +339,11 @@ export default class STApp extends Vue {
         if (newBackground == null) {
           newBackground = BackgroundSkin.random();
           this.scene.background.backgroundImage = newBackground
+          this.cache();
         }
         if (newBackground !== null) {
           this.scene.background.backgroundImage = newBackground
+          this.cache();
         }
       }
     }
