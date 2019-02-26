@@ -207,7 +207,6 @@ export default class STApp extends Vue {
    * Called whenever a branch is left-clicked.
    */
   onAddBranch(details: IBranchDetails & IDetailsWithOwner) {
-    console.log("onAddBranch")
     this.game!.cmd.execute(new AddBranchCommand(this.scene!.tree, details.parent.id, details));
     this.cache();
   }

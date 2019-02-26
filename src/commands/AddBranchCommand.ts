@@ -11,7 +11,6 @@ export default class AddBranchCommand implements ICommand {
 
     do(): void {
         const owner = this.tree.find(this.parent);
-        console.log("owner is", this.details.id, owner)
         if (owner) {
             this.branch = owner.addBranch(this.details);
         }

@@ -123,6 +123,7 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         if (id === this.id) {
             return this;
         }
+        // The find function is deeply recursive. Prepare for oblivion!
         for (const go of this._branchGroup.children.entries) {
             const branch = go as BranchGameObject;
             const foundIt = branch.find(id);
@@ -136,7 +137,6 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
     private onPointerUp(e: Phaser.Input.Pointer) {
         const x = (e.worldX - this.x) / this.width;
         const y = (e.worldY - this.y) / this.height;
-        console.log("onPointerUp")
         this.emit("add-branch", {
             id: uuid(),
             parent: this,
