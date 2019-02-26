@@ -20,7 +20,7 @@ export default class DemoCommand implements ICommand {
         this._oldTitle = null;
     }
 
-    execute(): void {
+    do(): void {
         // Remeber the old page title so that we can restore it if required.
         this._oldTitle = document.title;
         document.title = this._title;

@@ -7,7 +7,8 @@ import BackgroundSkin from '@/BackgroundSkin';
 import TreeType from '@/TreeType';
 
 export interface JSON {
-    tree: TreeJSON
+    tree: TreeJSON,
+    background: string
 }
 
 export default class TreeDesignerScene extends Phaser.Scene implements ISaveable<JSON> {
@@ -23,12 +24,19 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
 
     public saveGame(): JSON {
         return {
-            tree: this._tree.saveGame()
+            tree: this._tree.saveGame(),
+            background: this._background.backgroundImage.id
         }
     }
 
     public loadGame(json: JSON) {
         this._tree.loadGame(json.tree);
+        this._background.backgroundImage = BackgroundSkin.byId(json.background) || BackgroundSkin.random();
+    }
+
+    public clear() {
+        this._tree.clear();
+        this._background.backgroundImage = BackgroundSkin.random();
     }
 
     preload() {
@@ -55,6 +63,7 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
     }
 
     update(time: number, deltaTime: number) {
+        
     }
 
     public get tree() {

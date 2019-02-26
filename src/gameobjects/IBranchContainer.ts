@@ -16,6 +16,14 @@ export default interface ITreeElement {
      * @param details Details about there leaves
      */
     addLeaves(details: ILeavesDetails): LeavesGameObject;
+
+    /**
+     * Finds the given tree element with the ID. Can find itself.
+     * @param id The ID.
+     * @returns The tree element or null if not found.
+     */
+    find(id: string): ITreeElement | null;
+
     /**
      * The type of this tree.
      */
@@ -31,6 +39,13 @@ export default interface ITreeElement {
     readonly baseScale: number;
 
     readonly angle: number;
+
+    readonly owner: ITreeElement;
+    
+    /**
+     * The unique ID of this element.
+     */
+    readonly id: string;
 }
 
 /**
@@ -53,10 +68,11 @@ export interface IBranchDetails {
      * The type of this tree.
      */
     treeType: TreeType;
+
     /**
-     * The owner of the branch.
+     * The unique ID of this element.
      */
-    owner: ITreeElement;
+    id: string;
 }
 
 /**
@@ -75,8 +91,13 @@ export interface ILeavesDetails {
      * The type of this tree.
      */
     treeType: TreeType;
+
     /**
-     * The owner of the leaves.
+     * The unique ID of this element.
      */
-    owner: ITreeElement;
+    id: string;
+}
+
+export interface IDetailsWithOwner {
+    parent: ITreeElement;
 }

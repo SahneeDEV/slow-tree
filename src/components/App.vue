@@ -24,7 +24,7 @@
         <v-divider></v-divider>
 
         <v-list dense class="pt-0">
-          <v-list-tile v-for="item in items" :key="item.title">
+          <v-list-tile v-for="item in items" :key="item.id" v-on:click.stop="onClickMenuItem(item)">
             <v-list-tile-action>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-tile-action>
@@ -71,25 +71,26 @@
         </v-dialog>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn flat>
-            <v-icon>create</v-icon>
+          <v-btn :disabled="!scene" flat @click.stop="onClickDelete()">
+            <v-icon>delete</v-icon>
           </v-btn>
           <v-btn :disabled="!scene" flat @click.stop="onClickDownload()">
             <v-icon>cloud_download</v-icon>
           </v-btn>
-          <v-btn flat>
+          <v-btn :disabled="!scene" flat @click.stop="onClickUpload()">
             <v-icon>cloud_upload</v-icon>
           </v-btn>
-          <v-btn flat @click.stop="undo()">
+          <v-btn :disabled="!game || !game.cmd.canUndo" flat @click.stop="onClickUndo()">
             <v-icon>undo</v-icon>
           </v-btn>
-          <v-btn flat @click.stop="redo()">
+          <v-btn :disabled="!game || !game.cmd.canRedo" flat @click.stop="onClickRedo()">
             <v-icon>redo</v-icon>
           </v-btn>
         </v-toolbar-items>
       </v-toolbar>
       <v-content>
         <div id="game" ref="game"></div>
+        <STHoverInformation v-if="game && scene" :scene="scene" :game="game"/>
       </v-content>
       <v-footer app></v-footer>
     </v-app>
@@ -100,26 +101,33 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Game from "@/Game";
 import TreeDesignerScene from "@/scenes/TreeDesignerScene";
-import { IBranchDetails, ILeavesDetails } from "@/gameobjects/IBranchContainer";
+import { IBranchDetails, ILeavesDetails, IDetailsWithOwner } from "@/gameobjects/IBranchContainer";
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
 import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
+import STHoverInformation from "./HoverInformation.vue";
 
-@Component
-export default class App extends Vue {
+interface IMenuItem {
+  id: string;
+  title: string;
+  icon: string;
+}
+
+@Component({ components: { STHoverInformation } })
+export default class STApp extends Vue {
   constructor() {
     super();
   }
 
   private locale: Locale = defaultLocale();
   private strings: {} = {};
-  private game!: Game;
+  private game: Game | null = null;
   private scene: TreeDesignerScene | null = null;
-  private items = [
-    { title: "Home", icon: "dashboard" },
-    { title: "About", icon: "question_answer" }
+  private items: IMenuItem[] = [
+    { id: "home", title: "Home", icon: "dashboard" },
+    { id: "about", title: "About", icon: "question_answer" }
   ];
   right = null;
   background: string | null = null;
@@ -159,8 +167,8 @@ export default class App extends Vue {
   onGameReady() {
     console.log("Game ready, waiting for scene ...", this.game);
     // Wait for our only scene to be fully created.
-    this.game.cache.json.add("locale", this.strings);
-    const scene = this.game.scene.scenes[0] as TreeDesignerScene;
+    this.game!.cache.json.add("locale", this.strings);
+    const scene = this.game!.scene.scenes[0] as TreeDesignerScene;
     scene.events.on("scene-created", this.onSceneReady);
   }
 
@@ -171,86 +179,153 @@ export default class App extends Vue {
    * @param scene The scene that is ready.
    */
   onSceneReady(scene: TreeDesignerScene) {
-    console.log("Scene ready,  ...", scene);
+    console.log("Scene ready, waiting for input ...", scene);
     this.scene = scene;
     // Hook up scene events
     scene.tree.on("add-branch", this.onAddBranch);
     scene.tree.on("add-leaves", this.onAddLeaves);
     scene.background.on("new-background", this.onNewBackground)
     this.onNewBackground(scene.background.backgroundImage)
+    // Check cache
+    const cache = localStorage.getItem("cache");
+    if (cache) {
+      const json = JSON.parse(cache);
+      scene.loadGame(json);
+    }
+  }
+
+  /**
+   * Called whenever a menu item is clicked.
+   * @param item The menu item.
+   */
+  onClickMenuItem(item: IMenuItem) {
+    switch (item.id) {
+      case "about": {
+        window.open("https://sahnee.de/");
+        break;
+      }
+    }
   }
 
   /**
    * Called whenever a branch is left-clicked.
    */
-  onAddBranch(details: IBranchDetails) {
-    this.game.cmd.execute(new AddBranchCommand(details));
+  onAddBranch(details: IBranchDetails & IDetailsWithOwner) {
+    this.game!.cmd.execute(new AddBranchCommand(this.scene!.tree, details.parent.id, details));
+    this.cache();
   }
 
   /**
    * Called whenever a branch is right-clicked.
    */
-  onAddLeaves(details: ILeavesDetails) {
-    this.game.cmd.execute(new AddLeavesCommand(details));
+  onAddLeaves(details: ILeavesDetails & IDetailsWithOwner) {
+    this.game!.cmd.execute(new AddLeavesCommand(this.scene!.tree, details.parent.id, details));
+    this.cache();
   }
 
   /**
    * Called when the user clicks on the download button.
    */
   onClickDownload() {
-    this.download();
-  }
-
-  download() {
-    if (this.scene) {
-      const type = "application/json";
-      const json = JSON.stringify(this.scene.saveGame());
-      const data =
-        "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
-      console.log(data);
-      const a = document.body.appendChild(document.createElement("a"));
-      a.download = "slow-tree.json";
-      a.href = data;
-      a.click();
-      console.log(a.outerHTML);
-      document.body.removeChild(a);
-      return data;
+    if (!this.scene) {
+      throw new Error("No scene available");
     }
-    return "";
+    const type = "application/json";
+    const json = JSON.stringify(this.scene.saveGame());
+    const data = "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
+    const a = document.body.appendChild(document.createElement("a"));
+    a.download = "slow-tree.st";
+    a.href = data;
+    a.click();
+    document.body.removeChild(a);
+    console.log("Downloaded file ...", data);
+    return data;
   }
 
-  undo() {
-    this.game.cmd.undo();
+  /**
+   * Called when the user clicks on the upload button.
+   */
+  onClickUpload() {
+    const scene = this.scene;
+    if (!scene) {
+      throw new Error("No scene available");
+    }
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".st";
+    input.onchange = (e: Event) => {
+      const el = e.target as HTMLInputElement;
+      const file = el.files![0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const json = JSON.parse(reader.result as string);
+        console.log("Uploaded file ...", json);
+        scene.loadGame(json);
+        this.cache();
+      };
+      reader.readAsText(file);
+    };
+    input.click();
   }
 
-  redo() {
-    this.game.cmd.redo();
+  /**
+   * Called when the user clicks on the delete button.
+   */
+  onClickDelete() {
+    if (this.scene) {
+      this.scene.clear();
+    }
+    localStorage.removeItem("cache");
+  }
+
+  cache() {
+    if (this.scene) {
+      localStorage.setItem("cache", JSON.stringify(this.scene.saveGame()));
+    }
+  }
+
+  onClickUndo() {
+    const game = this.game;
+    if (!game) {
+      throw new Error("No game available");
+    }
+    game.cmd.undo();
+    this.cache();
+  }
+
+  onClickRedo() {
+    const game = this.game;
+    if (!game) {
+      throw new Error("No game available");
+    }
+    game.cmd.redo();
+    this.cache();
   }
 
   getAllBackgrounds() {
-    let temp:string[] = [];
+    let temp: string[] = [];
     let i = 0;
 
-    BackgroundSkin.ALL_BACKGROUNDS.forEach(element =>  {
-      temp[i] = element.id
+    BackgroundSkin.ALL_BACKGROUNDS.forEach(element => {
+      temp[i] = element.id;
 
       i++;
     });
 
-    return temp
+    return temp;
   }
 
   getAllTrees() {
-    let temp:string[] = [];
+    let temp: string[] = [];
     let i = 0;
 
-    TreeType.ALL_TREES.forEach(element =>  {
-      temp[i] = element.id
+    TreeType.ALL_TREES.forEach(element => {
+      temp[i] = element.id;
 
       i++;
     });
 
-    return temp
+    return temp;
   }
 
   onNewBackground(newBackground: BackgroundSkin) {
@@ -297,6 +372,7 @@ export default class App extends Vue {
 
 <style>
 html {
+  user-select: none;
   overflow-y: hidden !important;
 }
 </style>
