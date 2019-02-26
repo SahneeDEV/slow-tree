@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack"
+    "start": "webpack",
+    "build": "NODE_ENV=production webpack"
   },
   "contributors": [
     {
