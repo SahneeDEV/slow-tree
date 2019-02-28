@@ -60,6 +60,7 @@
                       :items="backgrounds"
                       label="Background"
                       data-vv-name="background"
+                      v-on:change="changeBackground"
                       required
                     ></v-select>
                   </v-flex>
@@ -123,6 +124,7 @@ import {
 } from "@/gameobjects/IBranchContainer";
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
+import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
 import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
@@ -149,6 +151,7 @@ export default class STApp extends Vue {
     { id: "about", title: "About", icon: "question_answer" }
   ];
   right = null;
+  background: string | null = null;
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
@@ -202,6 +205,8 @@ export default class STApp extends Vue {
     // Hook up scene events
     scene.tree.on("add-branch", this.onAddBranch);
     scene.tree.on("add-leaves", this.onAddLeaves);
+    scene.background.on("new-background", this.onNewBackground)
+    this.onNewBackground(scene.background.backgroundImage)
     // Check cache
     const cache = localStorage.getItem("cache");
     if (cache) {
@@ -367,6 +372,28 @@ export default class STApp extends Vue {
     return temp;
   }
 
+  onNewBackground(newBackground: BackgroundSkin) {
+    this.background = newBackground.id;
+  }
+
+  changeBackground() {
+    if (this.scene !== null) {
+      if (this.background !== null) {
+        let newBackground = BackgroundSkin.byId(this.background)
+        if (newBackground == null) {
+          newBackground = BackgroundSkin.random();
+          this.game!.cmd.execute(new ChangeBackgroundCommand(newBackground, this.scene.background));
+          this.cache();
+        }
+        if (newBackground !== null) {
+          this.game!.cmd.execute(new ChangeBackgroundCommand(newBackground, this.scene.background));
+          this.cache();
+        }
+      }
+    }
+    
+  }
+
   drawer = true;
   mini = true;
 
@@ -375,10 +402,7 @@ export default class STApp extends Vue {
   leaves = ["Laubblätter", "Nadelblätter"];
   trees = this.getAllTrees();
   backgrounds = this.getAllBackgrounds();
-
-  tree = "Normal Tree";
-  leaf = "Laubblätter";
-  background = "Default";
+  tree = "broadleaf";
 }
 </script>
 
