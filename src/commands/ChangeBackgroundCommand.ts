@@ -10,37 +10,37 @@ export default class ChangeBackgroundCommand implements ICommand {
     /**
      * The background we want to change to.
      */
-    private _background: BackgroundSkin;
+    private _newBackground: BackgroundSkin;
 
     /**
      * The background of the page used to have, saved in `execute`. null if not saved yet.
      */
-    private _oldBackground: BackgroundGameObject | null;
+    private _oldBackgroundImage: BackgroundSkin | null;
 
     /**
-     * The background we currently have
+     * The background we currently have (ITS ALWAYS UPDATED!!!!)
      */  
 
     private _currentBackground: BackgroundGameObject;
 
     constructor(newBackground: BackgroundSkin, currentBackground: BackgroundGameObject) {
-        this._background = newBackground;
-        this._oldBackground = null;
+        this._newBackground = newBackground;
+        this._oldBackgroundImage = null;
         this._currentBackground = currentBackground;
 
     }
 
     do(): void {
         // Remeber the old background so that we can restore it if required.
-        this._oldBackground = this._currentBackground;
-        this._currentBackground.backgroundImage = this._background;
+        this._oldBackgroundImage = this._currentBackground.backgroundImage;
+        this._currentBackground.backgroundImage = this._newBackground;
     }
 
     undo(): void {
         // Restore the old title. If it is still null execute was not called before, 
         // we thus have nothing to undo.
-        if (this._oldBackground !== null) {
-            this._currentBackground.backgroundImage = this._oldBackground.backgroundImage;
+        if (this._oldBackgroundImage !== null) {
+            this._currentBackground.backgroundImage = this._oldBackgroundImage;
         }
     }
 }
