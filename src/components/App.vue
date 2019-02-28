@@ -37,11 +37,11 @@
       </v-navigation-drawer>
       <v-toolbar app>
         <v-dialog v-model="dialog" width="500">
-          <v-btn slot="activator" dark>
+          <v-btn slot="activator" flat>
             <v-icon>settings</v-icon>
           </v-btn>
           <v-card>
-            <v-card-title dark class="headline" primary-title>Settings for the Tree Builder</v-card-title>
+            <v-card-title class="headline" primary-title>Settings for the Tree Builder</v-card-title>
             <v-card-text>
               <v-container grid-list-md>
                 <v-layout wrap>
