@@ -37,11 +37,11 @@
       </v-navigation-drawer>
       <v-toolbar app>
         <v-dialog v-model="dialog" width="500">
-          <v-btn slot="activator" dark>
+          <v-btn slot="activator" flat>
             <v-icon>settings</v-icon>
           </v-btn>
           <v-card>
-            <v-card-title dark class="headline" primary-title>Settings for the Tree Builder</v-card-title>
+            <v-card-title class="headline" primary-title>Settings for the Tree Builder</v-card-title>
             <v-card-text>
               <v-container grid-list-md>
                 <v-layout wrap>
@@ -74,9 +74,25 @@
           <v-btn :disabled="!scene" flat @click.stop="onClickDelete()">
             <v-icon>delete</v-icon>
           </v-btn>
-          <v-btn :disabled="!scene" flat @click.stop="onClickDownload()">
-            <v-icon>cloud_download</v-icon>
-          </v-btn>
+          <v-menu offset-y>
+            <v-btn flat slot="activator" :disabled="!scene">
+              <v-icon>cloud_download</v-icon>
+            </v-btn>
+            <v-list>
+              <v-list-tile @click.stop="onClickDownload()">
+                <v-list-tile-avatar>
+                  <v-icon>file_copy</v-icon>
+                </v-list-tile-avatar>
+                <v-list-tile-title>Project File</v-list-tile-title>
+              </v-list-tile>
+              <v-list-tile @click.stop="onClickScreenshot()">
+                <v-list-tile-avatar>
+                  <v-icon>insert_photo</v-icon>
+                </v-list-tile-avatar>
+                <v-list-tile-title>Image</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-menu>
           <v-btn :disabled="!scene" flat @click.stop="onClickUpload()">
             <v-icon>cloud_upload</v-icon>
           </v-btn>
@@ -101,7 +117,11 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Game from "@/Game";
 import TreeDesignerScene from "@/scenes/TreeDesignerScene";
-import { IBranchDetails, ILeavesDetails, IDetailsWithOwner } from "@/gameobjects/IBranchContainer";
+import {
+  IBranchDetails,
+  ILeavesDetails,
+  IDetailsWithOwner
+} from "@/gameobjects/IBranchContainer";
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
 import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
@@ -212,7 +232,9 @@ export default class STApp extends Vue {
    * Called whenever a branch is left-clicked.
    */
   onAddBranch(details: IBranchDetails & IDetailsWithOwner) {
-    this.game!.cmd.execute(new AddBranchCommand(this.scene!.tree, details.parent.id, details));
+    this.game!.cmd.execute(
+      new AddBranchCommand(this.scene!.tree, details.parent.id, details)
+    );
     this.cache();
   }
 
@@ -220,8 +242,24 @@ export default class STApp extends Vue {
    * Called whenever a branch is right-clicked.
    */
   onAddLeaves(details: ILeavesDetails & IDetailsWithOwner) {
-    this.game!.cmd.execute(new AddLeavesCommand(this.scene!.tree, details.parent.id, details));
+    this.game!.cmd.execute(
+      new AddLeavesCommand(this.scene!.tree, details.parent.id, details)
+    );
     this.cache();
+  }
+
+  /**
+   * Called when the user clicks on the screenshot button.
+   */
+  onClickScreenshot() {
+    if (!this.game) {
+      throw new Error("No game available");
+    }
+    return this.game.renderer.snapshot(snap => {
+      const img = snap as HTMLImageElement;
+      this.download("slow-tree.png", "image/png", img.src);
+      console.log("Downloaded screenshot ...", img);
+    }, "image/png");
   }
 
   /**
@@ -231,16 +269,21 @@ export default class STApp extends Vue {
     if (!this.scene) {
       throw new Error("No scene available");
     }
-    const type = "application/json";
     const json = JSON.stringify(this.scene.saveGame());
-    const data = "data:" + type + ";charset=utf-8," + encodeURIComponent(json);
+    this.download("slow-tree.st", "application/json", json);
+    console.log("Downloaded file ...", json);
+    return json;
+  }
+
+  download(name: string, type: string, content: string) {
+    const data = content.startsWith("data:")
+      ? content
+      : "data:" + type + ";charset=utf-8," + encodeURIComponent(content);
     const a = document.body.appendChild(document.createElement("a"));
-    a.download = "slow-tree.st";
+    a.download = name;
     a.href = data;
     a.click();
     document.body.removeChild(a);
-    console.log("Downloaded file ...", data);
-    return data;
   }
 
   /**

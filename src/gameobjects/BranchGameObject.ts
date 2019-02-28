@@ -19,12 +19,25 @@ export interface JSON {
  * A branch of a tree.
  */
 export default class BranchGameObject extends Phaser.GameObjects.GameObject implements ITreeElement, ISaveable<JSON> {
+    /**
+     * How long do we need to press to create leaves?
+     */
+    private static readonly LEAVES_PRESS_TIME = 1000;
+
     private _details: IBranchDetails;
     private _branch: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
     private _leavesGroup: Phaser.GameObjects.Group;
+    /**
+     * If this is true, leaves will be added once releasing the mouse button. This set to true by pressing the right mouse button.
+     */
     private _isAddingLeaves: boolean = false;
     private _treeType: TreeType;
+    /**
+     * The time we started pressing on the game object. If we press for `LEAVES_PRESS_TIME` we add leaves, if not we add a branch.
+     * (Leaves can also be added be right clicking, which is not affected by this property. See `_isAddingLeaves` instead)
+     */
+    private _pressTime: number = 0;
     private _owner: ITreeElement;
 
     constructor(scene: Phaser.Scene, details: IBranchDetails, owner: ITreeElement) {
@@ -38,8 +51,8 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         this._branch = this.scene.add.image(0, 0, `tree/${this._treeType.id}/branch`);
         this._branch.setOrigin(0.5, 1);
         this._branch.setInteractive({ pixelPerfect: true });
-        this._branch.on("pointerup", this.onPointerUp, this);
-        this._branch.on("pointerdown", this.onPointerDown, this);
+        this._branch.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, this.onPointerUp, this);
+        this._branch.on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.onPointerDown, this);
 
         this._branchGroup = this.scene.add.group();
         this._leavesGroup = this.scene.add.group();
@@ -179,11 +192,27 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         return branch;
     }
 
+    /**
+     * This event handler is called once the user clicks down on the branch.
+     * @param e The pointer event.
+     */
     private onPointerDown(e: Phaser.Input.Pointer) {
+        // We check for the right mouse button here instead of in the pointer up 
+        // event since the mouse button has already been released in up.
         this._isAddingLeaves = e.rightButtonDown();
+        this._pressTime = this.scene.time.now;
     }
 
+    /**
+     * This event handler is called once the user releases the click on the branch.
+     * @param e The pointer event.
+     */
     private onPointerUp(e: Phaser.Input.Pointer) {
+        // Check if we pressed long enough for adding leaves.
+        if (this.scene.time.now - this._pressTime >= BranchGameObject.LEAVES_PRESS_TIME) {
+            this._isAddingLeaves = true;
+        }
+        // Calcuate the spawn posiion & other params.
         const offsetX = e.worldX - this.x;
         const offsetY = e.worldY - this.y;
         const theta = rad(-this.angle);
@@ -191,6 +220,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         const rotY = offsetX * Math.sin(theta) + offsetY * Math.cos(theta);
         const x = rotX / this.width;
         const y = rotY / this.height;
+        // Emit either an add leaves or add branch event.
         if (this._isAddingLeaves) {
             this.emit("add-leaves", {
                 id: uuid(),
@@ -227,7 +257,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         this._branchGroup.destroy(true);
         this._leavesGroup.destroy(true);
         this.scene.events.off("update", this.onUpdate, this, false);
-        this._branch.off("pointerup", this.onPointerUp, this, false);
-        this._branch.off("pointerdown", this.onPointerDown, this, false);
+        this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, this.onPointerUp, this, false);
+        this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.onPointerDown, this, false);
     }
 }
