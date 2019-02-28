@@ -150,6 +150,7 @@ export default class STApp extends Vue {
   ];
   right = null;
   background: string | null = null;
+  tree: string = "broadleaf";
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
@@ -211,6 +212,8 @@ export default class STApp extends Vue {
       const json = JSON.parse(cache);
       scene.loadGame(json);
     }
+    //Fill the tree variable with the current tree id
+    this.tree = scene.tree.treeType.id;
   }
 
   /**
@@ -230,6 +233,11 @@ export default class STApp extends Vue {
    * Called whenever a branch is left-clicked.
    */
   onAddBranch(details: IBranchDetails & IDetailsWithOwner) {
+    const treeType = TreeType.byId(this.tree);
+    if (treeType != null) {
+       details.treeType = treeType;
+    }
+
     this.game!.cmd.execute(
       new AddBranchCommand(this.scene!.tree, details.parent.id, details)
     );
@@ -240,6 +248,11 @@ export default class STApp extends Vue {
    * Called whenever a branch is right-clicked.
    */
   onAddLeaves(details: ILeavesDetails & IDetailsWithOwner) {
+    const treeType = TreeType.byId(this.tree);
+    if (treeType != null) {
+       details.treeType = treeType;
+    }
+
     this.game!.cmd.execute(
       new AddLeavesCommand(this.scene!.tree, details.parent.id, details)
     );
@@ -316,8 +329,9 @@ export default class STApp extends Vue {
   onClickDelete() {
     if (this.scene) {
       this.scene.clear();
+      this.tree = this.scene.tree.treeType.id;
     }
-    localStorage.removeItem("cache");
+    localStorage.removeItem("cache");    
   }
 
   cache() {
@@ -400,7 +414,6 @@ export default class STApp extends Vue {
   leaves = ["Laubblätter", "Nadelblätter"];
   trees = this.getAllTrees();
   backgrounds = this.getAllBackgrounds();
-  tree = "broadleaf";
 }
 </script>
 
