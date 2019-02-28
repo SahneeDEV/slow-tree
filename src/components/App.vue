@@ -106,7 +106,6 @@
       </v-toolbar>
       <v-content>
         <div id="game" ref="game"></div>
-        <STHoverInformation v-if="game && scene" :scene="scene" :game="game"/>
       </v-content>
       <v-footer app></v-footer>
     </v-app>
@@ -128,7 +127,6 @@ import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
 import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
-import STHoverInformation from "./HoverInformation.vue";
 
 interface IMenuItem {
   id: string;
@@ -136,7 +134,7 @@ interface IMenuItem {
   icon: string;
 }
 
-@Component({ components: { STHoverInformation } })
+@Component
 export default class STApp extends Vue {
   constructor() {
     super();

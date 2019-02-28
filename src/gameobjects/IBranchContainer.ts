@@ -68,7 +68,6 @@ export interface IBranchDetails {
      * The type of this tree.
      */
     treeType: TreeType;
-
     /**
      * The unique ID of this element.
      */
@@ -91,7 +90,6 @@ export interface ILeavesDetails {
      * The type of this tree.
      */
     treeType: TreeType;
-
     /**
      * The unique ID of this element.
      */
