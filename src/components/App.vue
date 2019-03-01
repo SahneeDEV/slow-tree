@@ -37,7 +37,7 @@
       </v-navigation-drawer>
       <v-toolbar app>
         <v-dialog v-model="dialog" width="500">
-          <v-btn slot="activator" flat>
+          <v-btn icon slot="activator" flat>
             <v-icon>settings</v-icon>
           </v-btn>
           <v-card>
@@ -71,11 +71,11 @@
         </v-dialog>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn :disabled="!scene" flat @click.stop="onClickDelete()">
+          <v-btn icon :disabled="!scene" flat @click.stop="onClickDelete()">
             <v-icon>delete</v-icon>
           </v-btn>
           <v-menu offset-y>
-            <v-btn flat slot="activator" :disabled="!scene">
+            <v-btn icon flat slot="activator" :disabled="!scene">
               <v-icon>cloud_download</v-icon>
             </v-btn>
             <v-list>
@@ -93,13 +93,13 @@
               </v-list-tile>
             </v-list>
           </v-menu>
-          <v-btn :disabled="!scene" flat @click.stop="onClickUpload()">
+          <v-btn icon :disabled="!scene" flat @click.stop="onClickUpload()">
             <v-icon>cloud_upload</v-icon>
           </v-btn>
-          <v-btn :disabled="!game || !game.cmd.canUndo" flat @click.stop="onClickUndo()">
+          <v-btn icon :disabled="!game || !game.cmd.canUndo" flat @click.stop="onClickUndo()">
             <v-icon>undo</v-icon>
           </v-btn>
-          <v-btn :disabled="!game || !game.cmd.canRedo" flat @click.stop="onClickRedo()">
+          <v-btn icon :disabled="!game || !game.cmd.canRedo" flat @click.stop="onClickRedo()">
             <v-icon>redo</v-icon>
           </v-btn>
         </v-toolbar-items>
