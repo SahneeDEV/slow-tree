@@ -36,7 +36,7 @@
         </v-list>
       </v-navigation-drawer>
       <v-toolbar app>
-        <v-dialog v-model="dialog" width="500">
+        <v-dialog v-model="settingsmenu" width="500">
           <v-btn slot="activator" flat>
             <v-icon>settings</v-icon>
           </v-btn>
@@ -51,6 +51,7 @@
                       :items="trees"
                       label="Tree"
                       data-vv-name="tree"
+                      v-on:change="changeTree"
                       required
                     ></v-select>
                   </v-flex>
@@ -106,6 +107,19 @@
       </v-toolbar>
       <v-content>
         <div id="game" ref="game"></div>
+        <v-dialog v-model="dialog" width="500">
+          <v-card>
+            <v-card-title class="headline" primary-title>Append Tree Type?</v-card-title>
+            <v-card-text>
+              Do you want to use the selected Tree Type for the whole Tree?
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+                <v-btn color="primary">Yes</v-btn>
+                <v-btn>No</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-content>
       <v-footer app></v-footer>
     </v-app>
@@ -406,12 +420,17 @@ export default class STApp extends Vue {
     
   }
 
+  changeTree() {
+    this.settingsmenu = false;
+    this.dialog = true;
+  }
+
   drawer = true;
   mini = true;
 
   dialog = false;
+  settingsmenu = false;
 
-  leaves = ["Laubblätter", "Nadelblätter"];
   trees = this.getAllTrees();
   backgrounds = this.getAllBackgrounds();
 }
