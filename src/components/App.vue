@@ -146,7 +146,8 @@ export default class STApp extends Vue {
   private scene: TreeDesignerScene | null = null;
   private items: IMenuItem[] = [
     { id: "home", title: "Home", icon: "dashboard" },
-    { id: "about", title: "About", icon: "question_answer" }
+    { id: "about", title: "About", icon: "question_answer" },
+    { id: "privacy", title: "Privacy Policy", icon: "vpn_key" }
   ];
   right = null;
   background: string | null = null;
@@ -221,6 +222,10 @@ export default class STApp extends Vue {
     switch (item.id) {
       case "about": {
         window.open("https://sahnee.de/");
+        break;
+      }
+      case "privacy": {
+        window.open("https://sahnee.de/page/privacy-policy");
         break;
       }
     }
