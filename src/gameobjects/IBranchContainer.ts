@@ -25,9 +25,14 @@ export default interface ITreeElement {
     find(id: string): ITreeElement | null;
 
     /**
+     * 
+     */
+    generateTreeElements(): ITreeElement[];
+
+    /**
      * The type of this tree.
      */
-    readonly treeType: TreeType;
+    treeType: TreeType;
 
     readonly x: number;
     readonly y: number;

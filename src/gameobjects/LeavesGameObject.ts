@@ -89,6 +89,11 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
         }
         return null;
     }
+    public generateTreeElements() {
+        let treeElements: ITreeElement[];
+        treeElements = [this];
+        return treeElements;
+    }
 
     addBranch(details: IBranchDetails): BranchGameObject {
         throw new Error("Not supported.");

@@ -153,6 +153,14 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         }
     }
 
+    public get branches() {
+        return this._branchGroup.children.entries as BranchGameObject[]
+    }
+
+    public get leaves() {
+        return this._leavesGroup.children.entries as LeavesGameObject[]
+    }
+
     public find(id: string): ITreeElement | null {
         if (id === this.id) {
             return this;
@@ -172,6 +180,18 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
             }
         }
         return null;
+    }
+    public generateTreeElements() {
+        let treeElements: ITreeElement[] = [this];
+        for (let i = 0; i < this.branches.length; i++) {
+            const branch = this.branches[i];
+            treeElements = [...treeElements, ...branch.generateTreeElements()]
+        }
+        for (let e = 0; e < this.leaves.length; e++) {
+            const leave = this.leaves[e];
+            treeElements = [...treeElements, ...leave.generateTreeElements()]
+        }
+        return treeElements;
     }
 
     public addLeaves(details: ILeavesDetails): LeavesGameObject {

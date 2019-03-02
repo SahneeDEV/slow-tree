@@ -119,6 +119,10 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
         return "root";
     }
 
+    public get branches() {
+        return this._branchGroup.children.entries as BranchGameObject[]
+    }
+
     public find(id: string): ITreeElement | null {
         if (id === this.id) {
             return this;
@@ -171,5 +175,14 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
 
     public addLeaves(details: ILeavesDetails): LeavesGameObject {
         throw new Error("Method not implemented.");
+    }
+
+    public generateTreeElements() {
+        let treeElements: ITreeElement[] = [this];
+        for (let i = 0; i < this.branches.length; i++) {
+            const branch = this.branches[i];
+            treeElements = [...treeElements, ...branch.generateTreeElements()]
+        }
+        return treeElements;
     }
 }

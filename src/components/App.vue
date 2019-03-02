@@ -36,8 +36,8 @@
         </v-list>
       </v-navigation-drawer>
       <v-toolbar app>
-        <v-dialog v-model="dialog" width="500">
-          <v-btn icon slot="activator" flat>
+        <v-dialog v-model="settingsmenu" width="500">
+          <v-btn slot="activator" flat>
             <v-icon>settings</v-icon>
           </v-btn>
           <v-card>
@@ -51,6 +51,7 @@
                       :items="trees"
                       label="Tree"
                       data-vv-name="tree"
+                      v-on:change="changeTree"
                       required
                     ></v-select>
                   </v-flex>
@@ -106,6 +107,19 @@
       </v-toolbar>
       <v-content>
         <div id="game" ref="game"></div>
+        <v-dialog v-model="dialog" width="500">
+          <v-card>
+            <v-card-title class="headline" primary-title>Append Tree Type?</v-card-title>
+            <v-card-text>
+              Do you want to use the selected Tree Type for the whole Tree?
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+                <v-btn color="primary" @click="doChangeTree">Yes</v-btn>
+                <v-btn  @click="dialog = false">No</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-content>
       <v-footer app height="auto">
         <v-flex text-xs-center xs12>slow-tree &copy;2019 —
@@ -128,6 +142,7 @@ import {
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
 import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
+import ChangeWholeTreeCommand from "@/commands/ChangeWholeTreeCommand";
 import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
@@ -156,6 +171,7 @@ export default class STApp extends Vue {
   ];
   right = null;
   background: string | null = null;
+  tree: string = "broadleaf";
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
@@ -217,6 +233,8 @@ export default class STApp extends Vue {
       const json = JSON.parse(cache);
       scene.loadGame(json);
     }
+    //Fill the tree variable with the current tree id
+    this.tree = scene.tree.treeType.id;
   }
 
   /**
@@ -244,6 +262,11 @@ export default class STApp extends Vue {
    * Called whenever a branch is left-clicked.
    */
   onAddBranch(details: IBranchDetails & IDetailsWithOwner) {
+    const treeType = TreeType.byId(this.tree);
+    if (treeType != null) {
+       details.treeType = treeType;
+    }
+
     this.game!.cmd.execute(
       new AddBranchCommand(this.scene!.tree, details.parent.id, details)
     );
@@ -254,6 +277,11 @@ export default class STApp extends Vue {
    * Called whenever a branch is right-clicked.
    */
   onAddLeaves(details: ILeavesDetails & IDetailsWithOwner) {
+    const treeType = TreeType.byId(this.tree);
+    if (treeType != null) {
+       details.treeType = treeType;
+    }
+
     this.game!.cmd.execute(
       new AddLeavesCommand(this.scene!.tree, details.parent.id, details)
     );
@@ -330,8 +358,9 @@ export default class STApp extends Vue {
   onClickDelete() {
     if (this.scene) {
       this.scene.clear();
+      this.tree = this.scene.tree.treeType.id;
     }
-    localStorage.removeItem("cache");
+    localStorage.removeItem("cache");    
   }
 
   cache() {
@@ -409,15 +438,30 @@ export default class STApp extends Vue {
     }
   }
 
+  changeTree() {
+    this.settingsmenu = false;
+    this.dialog = true;
+  }
+
+  doChangeTree() {
+   this.dialog = false
+   const treeType = TreeType.byId(this.tree);
+   if (treeType !== null) {
+      if ( this.scene !== null) {
+      const tree = this.scene.tree;
+      this.game!.cmd.execute(new ChangeWholeTreeCommand(treeType, tree))
+      }
+   }
+  }
+
   drawer = true;
   mini = true;
 
   dialog = false;
+  settingsmenu = false;
 
-  leaves = ["Laubblätter", "Nadelblätter"];
   trees = this.getAllTrees();
   backgrounds = this.getAllBackgrounds();
-  tree = "broadleaf";
 }
 </script>
 
