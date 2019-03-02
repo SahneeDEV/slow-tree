@@ -72,11 +72,11 @@
         </v-dialog>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn :disabled="!scene" flat @click.stop="onClickDelete()">
+          <v-btn icon :disabled="!scene" flat @click.stop="onClickDelete()">
             <v-icon>delete</v-icon>
           </v-btn>
           <v-menu offset-y>
-            <v-btn flat slot="activator" :disabled="!scene">
+            <v-btn icon flat slot="activator" :disabled="!scene">
               <v-icon>cloud_download</v-icon>
             </v-btn>
             <v-list>
@@ -94,13 +94,13 @@
               </v-list-tile>
             </v-list>
           </v-menu>
-          <v-btn :disabled="!scene" flat @click.stop="onClickUpload()">
+          <v-btn icon :disabled="!scene" flat @click.stop="onClickUpload()">
             <v-icon>cloud_upload</v-icon>
           </v-btn>
-          <v-btn :disabled="!game || !game.cmd.canUndo" flat @click.stop="onClickUndo()">
+          <v-btn icon :disabled="!game || !game.cmd.canUndo" flat @click.stop="onClickUndo()">
             <v-icon>undo</v-icon>
           </v-btn>
-          <v-btn :disabled="!game || !game.cmd.canRedo" flat @click.stop="onClickRedo()">
+          <v-btn icon :disabled="!game || !game.cmd.canRedo" flat @click.stop="onClickRedo()">
             <v-icon>redo</v-icon>
           </v-btn>
         </v-toolbar-items>
@@ -121,7 +121,11 @@
           </v-card>
         </v-dialog>
       </v-content>
-      <v-footer app></v-footer>
+      <v-footer app height="auto">
+        <v-flex text-xs-center xs12>slow-tree &copy;2019 —
+          <strong>sahnee.de</strong>
+        </v-flex>
+      </v-footer>
     </v-app>
   </div>
 </template>
@@ -161,7 +165,9 @@ export default class STApp extends Vue {
   private scene: TreeDesignerScene | null = null;
   private items: IMenuItem[] = [
     { id: "home", title: "Home", icon: "dashboard" },
-    { id: "about", title: "About", icon: "question_answer" }
+    { id: "about", title: "About", icon: "question_answer" },
+    { id: "code", title: "Source Code", icon: "code" },
+    { id: "privacy", title: "Privacy Policy", icon: "vpn_key" }
   ];
   right = null;
   background: string | null = null;
@@ -219,8 +225,8 @@ export default class STApp extends Vue {
     // Hook up scene events
     scene.tree.on("add-branch", this.onAddBranch);
     scene.tree.on("add-leaves", this.onAddLeaves);
-    scene.background.on("new-background", this.onNewBackground)
-    this.onNewBackground(scene.background.backgroundImage)
+    scene.background.on("new-background", this.onNewBackground);
+    this.onNewBackground(scene.background.backgroundImage);
     // Check cache
     const cache = localStorage.getItem("cache");
     if (cache) {
@@ -239,6 +245,14 @@ export default class STApp extends Vue {
     switch (item.id) {
       case "about": {
         window.open("https://sahnee.de/");
+        break;
+      }
+      case "privacy": {
+        window.open("https://sahnee.de/page/privacy-policy/");
+        break;
+      }
+      case "code": {
+        window.open("https://github.com/PatrickSachs/slow-tree/");
         break;
       }
     }
@@ -406,19 +420,22 @@ export default class STApp extends Vue {
   changeBackground() {
     if (this.scene !== null) {
       if (this.background !== null) {
-        let newBackground = BackgroundSkin.byId(this.background)
+        let newBackground = BackgroundSkin.byId(this.background);
         if (newBackground == null) {
           newBackground = BackgroundSkin.random();
-          this.game!.cmd.execute(new ChangeBackgroundCommand(newBackground, this.scene.background));
+          this.game!.cmd.execute(
+            new ChangeBackgroundCommand(newBackground, this.scene.background)
+          );
           this.cache();
         }
         if (newBackground !== null) {
-          this.game!.cmd.execute(new ChangeBackgroundCommand(newBackground, this.scene.background));
+          this.game!.cmd.execute(
+            new ChangeBackgroundCommand(newBackground, this.scene.background)
+          );
           this.cache();
         }
       }
     }
-    
   }
 
   changeTree() {
