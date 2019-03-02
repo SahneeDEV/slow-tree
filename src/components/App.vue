@@ -107,7 +107,11 @@
       <v-content>
         <div id="game" ref="game"></div>
       </v-content>
-      <v-footer app></v-footer>
+      <v-footer app height="auto">
+        <v-flex text-xs-center xs12>slow-tree &copy;2019 —
+          <strong>sahnee.de</strong>
+        </v-flex>
+      </v-footer>
     </v-app>
   </div>
 </template>
@@ -147,6 +151,7 @@ export default class STApp extends Vue {
   private items: IMenuItem[] = [
     { id: "home", title: "Home", icon: "dashboard" },
     { id: "about", title: "About", icon: "question_answer" },
+    { id: "code", title: "Source Code", icon: "code" },
     { id: "privacy", title: "Privacy Policy", icon: "vpn_key" }
   ];
   right = null;
@@ -204,8 +209,8 @@ export default class STApp extends Vue {
     // Hook up scene events
     scene.tree.on("add-branch", this.onAddBranch);
     scene.tree.on("add-leaves", this.onAddLeaves);
-    scene.background.on("new-background", this.onNewBackground)
-    this.onNewBackground(scene.background.backgroundImage)
+    scene.background.on("new-background", this.onNewBackground);
+    this.onNewBackground(scene.background.backgroundImage);
     // Check cache
     const cache = localStorage.getItem("cache");
     if (cache) {
@@ -225,7 +230,11 @@ export default class STApp extends Vue {
         break;
       }
       case "privacy": {
-        window.open("https://sahnee.de/page/privacy-policy");
+        window.open("https://sahnee.de/page/privacy-policy/");
+        break;
+      }
+      case "code": {
+        window.open("https://github.com/PatrickSachs/slow-tree/");
         break;
       }
     }
@@ -382,19 +391,22 @@ export default class STApp extends Vue {
   changeBackground() {
     if (this.scene !== null) {
       if (this.background !== null) {
-        let newBackground = BackgroundSkin.byId(this.background)
+        let newBackground = BackgroundSkin.byId(this.background);
         if (newBackground == null) {
           newBackground = BackgroundSkin.random();
-          this.game!.cmd.execute(new ChangeBackgroundCommand(newBackground, this.scene.background));
+          this.game!.cmd.execute(
+            new ChangeBackgroundCommand(newBackground, this.scene.background)
+          );
           this.cache();
         }
         if (newBackground !== null) {
-          this.game!.cmd.execute(new ChangeBackgroundCommand(newBackground, this.scene.background));
+          this.game!.cmd.execute(
+            new ChangeBackgroundCommand(newBackground, this.scene.background)
+          );
           this.cache();
         }
       }
     }
-    
   }
 
   drawer = true;

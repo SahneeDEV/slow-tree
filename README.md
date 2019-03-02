@@ -14,7 +14,9 @@ A web based 2D-tree creation application. Check it out at [tree.sahnee.de](http:
 
 ## Why?
 
-This project was created as a class project to **practice design pattern implementation**. Actions such as adding a branch, chaning the background, etc. are encapsulated into command classes that can be done and undone.
+This project was created as a class project to **practice design pattern implementation**. Actions such as adding a branch, changing the background, etc. are encapsulated into command classes that can be done and undone.
+
+The UI is written in Vue.js and the application itself in Phaser 3. We use TypeScript as programming language.
 
 ## Contributions
 
