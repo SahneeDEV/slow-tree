@@ -115,8 +115,8 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-                <v-btn color="primary">Yes</v-btn>
-                <v-btn>No</v-btn>
+                <v-btn color="primary" @click="doChangeTree">Yes</v-btn>
+                <v-btn  @click="dialog = false">No</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -138,6 +138,7 @@ import {
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
 import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
+import ChangeWholeTreeCommand from "@/commands/ChangeWholeTreeCommand";
 import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
@@ -423,6 +424,17 @@ export default class STApp extends Vue {
   changeTree() {
     this.settingsmenu = false;
     this.dialog = true;
+  }
+
+  doChangeTree() {
+   this.dialog = false
+   const treeType = TreeType.byId(this.tree);
+   if (treeType !== null) {
+      if ( this.scene !== null) {
+      const tree = this.scene.tree;
+      this.game!.cmd.execute(new ChangeWholeTreeCommand(treeType, tree))
+      }
+   }
   }
 
   drawer = true;
