@@ -1,6 +1,6 @@
 # slow-tree
 
-A web based 2D-tree creation application. Check it out at [tree.sahnee.de](http://tree.sahnee.de/)!
+A web based 2D-tree creation application. Check it out at [tree.sahnee.de](https://tree.sahnee.de/)!
 
 ![Game Screenshot](https://data.patrick-sachs.de/content/slow-tree/github-banner.png)
 
