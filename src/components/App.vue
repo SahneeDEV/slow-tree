@@ -109,20 +109,24 @@
         <div id="game" ref="game"></div>
         <v-dialog v-model="dialog" width="500">
           <v-card>
-            <v-card-title class="headline" primary-title>Append Tree Type?</v-card-title>
+            <v-card-title class="headline" primary-title>Change whole tree?</v-card-title>
             <v-card-text>
-              Do you want to use the selected Tree Type for the whole Tree?
+              Do you want to use the selected tree type for the whole tree?
+              <br>Selecting
+              <em>Yes</em> will change the whole tree to the selected type,
+              <em>No</em> will only be applied to new elements.
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-                <v-btn color="primary" @click="doChangeTree">Yes</v-btn>
-                <v-btn  @click="dialog = false">No</v-btn>
+              <v-btn color="primary" @click="doChangeTree">Yes, change everything</v-btn>
+              <v-btn @click="dialog = false">No, only new elements</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
       </v-content>
       <v-footer app height="auto">
-        <v-flex text-xs-center xs12>slow-tree &copy;2019 —
+        <v-flex text-xs-center xs12>
+          slow-tree &copy;2019 —
           <strong>sahnee.de</strong>
         </v-flex>
       </v-footer>
@@ -264,7 +268,7 @@ export default class STApp extends Vue {
   onAddBranch(details: IBranchDetails & IDetailsWithOwner) {
     const treeType = TreeType.byId(this.tree);
     if (treeType != null) {
-       details.treeType = treeType;
+      details.treeType = treeType;
     }
 
     this.game!.cmd.execute(
@@ -279,7 +283,7 @@ export default class STApp extends Vue {
   onAddLeaves(details: ILeavesDetails & IDetailsWithOwner) {
     const treeType = TreeType.byId(this.tree);
     if (treeType != null) {
-       details.treeType = treeType;
+      details.treeType = treeType;
     }
 
     this.game!.cmd.execute(
@@ -360,7 +364,7 @@ export default class STApp extends Vue {
       this.scene.clear();
       this.tree = this.scene.tree.treeType.id;
     }
-    localStorage.removeItem("cache");    
+    localStorage.removeItem("cache");
   }
 
   cache() {
@@ -444,14 +448,13 @@ export default class STApp extends Vue {
   }
 
   doChangeTree() {
-   this.dialog = false
-   const treeType = TreeType.byId(this.tree);
-   if (treeType !== null) {
-      if ( this.scene !== null) {
+    this.dialog = false;
+    const treeType = TreeType.byId(this.tree);
+    if (treeType !== null && this.scene !== null) {
       const tree = this.scene.tree;
-      this.game!.cmd.execute(new ChangeWholeTreeCommand(treeType, tree))
-      }
-   }
+      this.game!.cmd.execute(new ChangeWholeTreeCommand(treeType, tree));
+      this.cache();
+    }
   }
 
   drawer = true;
