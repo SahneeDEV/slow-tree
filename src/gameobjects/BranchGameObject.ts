@@ -22,7 +22,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     /**
      * How long do we need to press to create leaves?
      */
-    private static readonly LEAVES_PRESS_TIME = 1000;
+    private static readonly LEAVES_PRESS_TIME = 300;
 
     private _details: IBranchDetails;
     private _branch: Phaser.GameObjects.Image;
