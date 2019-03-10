@@ -107,22 +107,6 @@
       </v-toolbar>
       <v-content>
         <div id="game" ref="game"></div>
-        <v-dialog v-model="dialog" width="500">
-          <v-card>
-            <v-card-title class="headline" primary-title>Change whole tree?</v-card-title>
-            <v-card-text>
-              Do you want to use the selected tree type for the whole tree?
-              <br>Selecting
-              <em>Yes</em> will change the whole tree to the selected type,
-              <em>No</em> will only be applied to new elements.
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="primary" @click="doChangeTree">Yes, change everything</v-btn>
-              <v-btn @click="dialog = false">No, only new elements</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
       </v-content>
       <v-footer app height="auto">
         <v-flex text-xs-center xs12>
@@ -131,6 +115,41 @@
         </v-flex>
       </v-footer>
     </v-app>
+
+    <v-dialog v-model="dialog" width="500">
+      <v-card>
+        <v-card-title class="headline" primary-title>Change whole tree?</v-card-title>
+        <v-card-text>
+          Do you want to use the selected tree type for the whole tree?
+          <br>Selecting
+          <em>Yes</em> will change the whole tree to the selected type,
+          <em>No</em> will only be applied to new elements.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="doChangeTree">Yes, change everything</v-btn>
+          <v-btn @click="dialog = false">No, only new elements</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="tutorial" width="500">
+      <v-card>
+        <v-card-title class="headline" primary-title>Welcome to slow-tree!</v-card-title>
+        <v-card-text>
+          <p>slow-tree is a web based 2D-tree creation application.</p>
+          <p>
+            You can create new
+            <strong>branches by left-clicking/tapping</strong> on the trunk. Create
+            <strong>leaves by right-clicking/long-tapping</strong> on a branch.
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="doFinishTutorial">Got it!</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -168,11 +187,11 @@ export default class STApp extends Vue {
   private game: Game | null = null;
   private scene: TreeDesignerScene | null = null;
   private items: IMenuItem[] = [
-    { id: "home", title: "Home", icon: "dashboard" },
     { id: "about", title: "About", icon: "question_answer" },
     { id: "code", title: "Source Code", icon: "code" },
     { id: "privacy", title: "Privacy Policy", icon: "vpn_key" }
   ];
+  private tutorial: boolean = true;
   right = null;
   background: string | null = null;
   tree: string = "broadleaf";
@@ -182,6 +201,7 @@ export default class STApp extends Vue {
    * Useful for non-visual initialization.
    */
   created() {
+    this.tutorial = localStorage.getItem("tutorial") !== "true";
     fetch(`/assets/locale/${Locale[this.locale]}.json`)
       .then(data => data.json())
       .then(json => {
@@ -455,6 +475,14 @@ export default class STApp extends Vue {
       this.game!.cmd.execute(new ChangeWholeTreeCommand(treeType, tree));
       this.cache();
     }
+  }
+
+  /**
+   * Called when the user closes the totorial.
+   */
+  doFinishTutorial() {
+    this.tutorial = false;
+    localStorage.setItem("tutorial", "true");
   }
 
   drawer = true;
