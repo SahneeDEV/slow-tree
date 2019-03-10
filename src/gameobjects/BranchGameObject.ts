@@ -5,6 +5,27 @@ import LeavesGameObject, { JSON as LeavesJSON } from "./LeavesGameObject";
 import rad from "../utils/rad";
 import uuid from "@/utils/uuid";
 
+/**
+ * What should we create?
+ */
+enum AddMode {
+    /**
+     * Dont't create anyhting. This is both the default value and the one the mode is reset 
+     * to when the button is released. (The latter is to fix the problem where a user would
+     * start clicking on one element, then move the mouse to another and release the button
+     * there).
+     */
+    NOTHING,
+    /**
+     * Create a branch.
+     */
+    BRANCH,
+    /**
+     * Create leaves.
+     */
+    LEAVES
+}
+
 export interface JSON {
     id: string;
     x: number;
@@ -29,15 +50,21 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     private _branchGroup: Phaser.GameObjects.Group;
     private _leavesGroup: Phaser.GameObjects.Group;
     /**
-     * If this is true, leaves will be added once releasing the mouse button. This set to true by pressing the right mouse button.
+     * What should the user input add?
      */
-    private _isAddingLeaves: boolean = false;
+    private _adding: AddMode = AddMode.NOTHING;
+    /**
+     * The type of this element.
+     */
     private _treeType: TreeType;
     /**
      * The time we started pressing on the game object. If we press for `LEAVES_PRESS_TIME` we add leaves, if not we add a branch.
      * (Leaves can also be added be right clicking, which is not affected by this property. See `_isAddingLeaves` instead)
      */
     private _pressTime: number = 0;
+    /**
+     * The parent element.
+    */
     private _owner: ITreeElement;
 
     constructor(scene: Phaser.Scene, details: IBranchDetails, owner: ITreeElement) {
@@ -53,6 +80,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         this._branch.setInteractive({ pixelPerfect: true });
         this._branch.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, this.onPointerUp, this);
         this._branch.on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.onPointerDown, this);
+        this._branch.on(Phaser.Input.Events.GAMEOBJECT_POINTER_OUT, this.onPointerOut, this);
 
         this._branchGroup = this.scene.add.group();
         this._leavesGroup = this.scene.add.group();
@@ -213,13 +241,21 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     /**
+     * Called whenever the mous eleaves the branch.
+     * @param e The pointer event.
+     */
+    private onPointerOut(e: Phaser.Input.Pointer) {
+        this._adding = AddMode.NOTHING;
+    }
+
+    /**
      * This event handler is called once the user clicks down on the branch.
      * @param e The pointer event.
      */
     private onPointerDown(e: Phaser.Input.Pointer) {
         // We check for the right mouse button here instead of in the pointer up 
         // event since the mouse button has already been released in up.
-        this._isAddingLeaves = e.rightButtonDown();
+        this._adding = e.rightButtonDown() ? AddMode.LEAVES : AddMode.BRANCH;
         this._pressTime = this.scene.time.now;
     }
 
@@ -228,9 +264,12 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
      * @param e The pointer event.
      */
     private onPointerUp(e: Phaser.Input.Pointer) {
+        if (this._adding === AddMode.NOTHING) {
+            return;
+        }
         // Check if we pressed long enough for adding leaves.
         if (this.scene.time.now - this._pressTime >= BranchGameObject.LEAVES_PRESS_TIME) {
-            this._isAddingLeaves = true;
+            this._adding = AddMode.LEAVES;
         }
         // Calcuate the spawn posiion & other params.
         const offsetX = e.worldX - this.x;
@@ -241,7 +280,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         const x = rotX / this.width;
         const y = rotY / this.height;
         // Emit either an add leaves or add branch event.
-        if (this._isAddingLeaves) {
+        if (this._adding === AddMode.LEAVES) {
             this.emit("add-leaves", {
                 id: uuid(),
                 parent: this,
@@ -249,7 +288,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
                 x: x,
                 y: y
             });
-        } else {
+        } else if (this._adding === AddMode.BRANCH) {
             this.emit("add-branch", {
                 id: uuid(),
                 parent: this,
