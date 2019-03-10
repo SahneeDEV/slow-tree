@@ -66,6 +66,17 @@
                     ></v-select>
                   </v-flex>
                 </v-layout>
+                <v-layout wrap>
+                  <v-flex xs12>
+                    <v-slider 
+                      label="Angle of banches"
+                      max=90
+                      min=-90
+                      thumb-label
+                      v-model="brancheAngle"
+                    ></v-slider>
+                  </v-flex>
+                </v-layout>
               </v-container>
             </v-card-text>
           </v-card>
@@ -195,6 +206,7 @@ export default class STApp extends Vue {
   right = null;
   background: string | null = null;
   tree: string = "broadleaf";
+  brancheAngle: integer = 0;
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
@@ -290,6 +302,7 @@ export default class STApp extends Vue {
     if (treeType != null) {
       details.treeType = treeType;
     }
+    details.angle = details.angle + this.brancheAngle
 
     this.game!.cmd.execute(
       new AddBranchCommand(this.scene!.tree, details.parent.id, details)
