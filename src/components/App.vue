@@ -161,6 +161,10 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+     <v-snackbar
+      v-model="oldSavegameVersion"
+    >{{ errorMessage }}</v-snackbar>
   </div>
 </template>
 
@@ -207,6 +211,8 @@ export default class STApp extends Vue {
   background: string | null = null;
   tree: string = "broadleaf";
   brancheAngle: integer = 0;
+  oldSavegameVersion: boolean = false;
+  errorMessage: string = "";
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
@@ -267,7 +273,15 @@ export default class STApp extends Vue {
     const cache = localStorage.getItem("cache");
     if (cache) {
       const json = JSON.parse(cache);
-      scene.loadGame(json);
+      try {
+            scene.loadGame(json);
+            this.cache();
+          }
+      catch (error) {
+        this.oldSavegameVersion = true;
+        console.log(error.message);
+        this.errorMessage = error.message;
+      }
     }
     //Fill the tree variable with the current tree id
     this.tree = scene.tree.treeType.id;
@@ -381,8 +395,15 @@ export default class STApp extends Vue {
       reader.onload = () => {
         const json = JSON.parse(reader.result as string);
         console.log("Uploaded file ...", json);
-        scene.loadGame(json);
-        this.cache();
+        try {
+              scene.loadGame(json);
+              this.cache();
+            }
+        catch (error) {
+          this.oldSavegameVersion = true;
+          console.log(error.message);
+          this.errorMessage = error.message;
+        }
       };
       reader.readAsText(file);
     };
