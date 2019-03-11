@@ -122,6 +122,11 @@ export interface IOwnedTreeElementDetails extends ITreeElementDetails {
     parent: TreeElement;
 }
 
+/**
+ * How long does the user need to press to trigger a secondary interact?
+ */
+export const INTERACT_PRESS_TIME = 300;
+
 export enum InteractMode {
     PRIMARY,
     SECONDARY

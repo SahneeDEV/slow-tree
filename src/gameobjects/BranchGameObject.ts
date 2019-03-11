@@ -1,5 +1,5 @@
 import TreeType from "@/TreeType";
-import ITreeElement, { ITreeElementDetails, TreeElementType, IInteractEvent, InteractMode } from "./IBranchContainer";
+import ITreeElement, { ITreeElementDetails, TreeElementType, IInteractEvent, InteractMode, INTERACT_PRESS_TIME } from "./IBranchContainer";
 import LeavesGameObject, { JSON as LeavesJSON } from "./LeavesGameObject";
 import rad from "../utils/rad";
 
@@ -12,11 +12,6 @@ export interface JSON extends ITreeElementDetails {
  * A branch of a tree.
  */
 export default class BranchGameObject extends ITreeElement<JSON> {
-    /**
-     * How long do we need to press to create leaves?
-     */
-    private static readonly LEAVES_PRESS_TIME = 300;
-
     private _details: ITreeElementDetails;
     private _branch: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
@@ -201,6 +196,7 @@ export default class BranchGameObject extends ITreeElement<JSON> {
     public addLeaves(details: ITreeElementDetails): LeavesGameObject {
         const leaves = new LeavesGameObject(this.scene, details, this);
         this._leavesGroup.add(leaves);
+        leaves.on("interact", (e: IInteractEvent) => this.emit("interact", e));
         return leaves;
     }
 
@@ -239,7 +235,7 @@ export default class BranchGameObject extends ITreeElement<JSON> {
             return;
         }
         // Check if we pressed long enough for adding leaves.
-        if (this.scene.time.now - this._pressTime >= BranchGameObject.LEAVES_PRESS_TIME) {
+        if (this.scene.time.now - this._pressTime >= INTERACT_PRESS_TIME) {
             this._adding = InteractMode.SECONDARY;
         }
         // Calcuate the spawn posiion & other params.
@@ -271,11 +267,12 @@ export default class BranchGameObject extends ITreeElement<JSON> {
     }
 
     private onDestroy() {
-        this._branch.destroy(true);
-        this._branchGroup.destroy(true);
-        this._leavesGroup.destroy(true);
+        this._branch.destroy();
+        this._branchGroup.destroy();
+        this._leavesGroup.destroy();
         this.scene.events.off("update", this.onUpdate, this, false);
         this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, this.onPointerUp, this, false);
         this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.onPointerDown, this, false);
+        this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_OUT, this.onPointerDown, this, false);
     }
 }
