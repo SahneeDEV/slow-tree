@@ -7,6 +7,7 @@ import BackgroundSkin from '@/BackgroundSkin';
 import TreeType from '@/TreeType';
 
 export interface JSON {
+    version: number;
     tree: TreeJSON,
     background: string
 }
@@ -15,6 +16,7 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
     private _application!: SlowTreeGame;
     private _tree!: TreeGameObject;
     private _background!: BackgroundGameObject;
+    private _version: number = 2;
 
     constructor() {
         super({
@@ -24,14 +26,19 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
 
     public saveGame(): JSON {
         return {
+            version: this._version,
             tree: this._tree.saveGame(),
             background: this._background.backgroundImage.id
         }
     }
 
     public loadGame(json: JSON) {
+        if (this._version != json.version) {
+            throw new Error("Canceled Loading because the Savegame has an outdatet Version. Current Version: " + this._version + " Savegame Version: " + json.version);
+        }
         this._tree.loadGame(json.tree);
         this._background.backgroundImage = BackgroundSkin.byId(json.background) || BackgroundSkin.random();
+  
     }
 
     public clear() {
