@@ -34,7 +34,7 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
 
     public loadGame(json: JSON) {
         if (this._version != json.version) {
-            throw new Error("Canceled Loading because the Savegame has an outdatet Version. Current Version: " + this._version + " Savegame Version: " + json.version);
+            throw new Error("Oops! This project file belongs to an old version of slow-tree and could not be loaded. (Project file version is " + this._version + ", the latest version is " + json.version + ")");
         }
         this._tree.loadGame(json.tree);
         this._background.backgroundImage = BackgroundSkin.byId(json.background) || BackgroundSkin.random();
