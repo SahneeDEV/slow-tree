@@ -343,9 +343,11 @@ export default class STApp extends Vue {
   onTreeInteract(e: IInteractEvent) {
     if (this.burnTree) {
       if (e.mode === InteractMode.PRIMARY) {
-        this.game!.cmd.execute(
-          new DestroyTreeElementCommand(this.scene!.tree, e.element.id)
-        );
+        if (e.element !== this.scene!.tree) {
+          this.game!.cmd.execute(
+            new DestroyTreeElementCommand(this.scene!.tree, e.element.id)
+          );
+        }
       }
       // todo: Can we somehow use the secondary interact mode for something here?
     } else {
