@@ -212,9 +212,15 @@ export default class STApp extends Vue {
   private tutorial: boolean = true;
   private burnTree: boolean = false;
   private burnTreeSnackbar: boolean = false;
-  right = null;
-  background: string | null = null;
-  tree: string = "broadleaf";
+  private right = null;
+  private background: string | null = null;
+  private tree: string = "broadleaf";
+  private drawer = true;
+  private mini = true;
+  private dialog = false;
+  private settingsmenu = false;
+  private trees = this.getAllTrees();
+  private backgrounds = this.getAllBackgrounds();
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
@@ -504,15 +510,6 @@ export default class STApp extends Vue {
     this.tutorial = false;
     localStorage.setItem("tutorial", "true");
   }
-
-  drawer = true;
-  mini = true;
-
-  dialog = false;
-  settingsmenu = false;
-
-  trees = this.getAllTrees();
-  backgrounds = this.getAllBackgrounds();
 }
 </script>
 
