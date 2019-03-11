@@ -1,37 +1,9 @@
 import TreeType from "@/TreeType";
-import ISaveable from "@/ISaveable";
-import ITreeElement, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
+import ITreeElement, { ITreeElementDetails, TreeElementType, IInteractEvent, InteractMode, INTERACT_PRESS_TIME } from "./IBranchContainer";
 import LeavesGameObject, { JSON as LeavesJSON } from "./LeavesGameObject";
 import rad from "../utils/rad";
-import uuid from "@/utils/uuid";
 
-/**
- * What should we create?
- */
-enum AddMode {
-    /**
-     * Dont't create anyhting. This is both the default value and the one the mode is reset 
-     * to when the button is released. (The latter is to fix the problem where a user would
-     * start clicking on one element, then move the mouse to another and release the button
-     * there).
-     */
-    NOTHING,
-    /**
-     * Create a branch.
-     */
-    BRANCH,
-    /**
-     * Create leaves.
-     */
-    LEAVES
-}
-
-export interface JSON {
-    id: string;
-    x: number;
-    y: number;
-    angle: number;
-    type: string;
+export interface JSON extends ITreeElementDetails {
     branches: JSON[];
     leaves: LeavesJSON[];
 }
@@ -39,20 +11,15 @@ export interface JSON {
 /**
  * A branch of a tree.
  */
-export default class BranchGameObject extends Phaser.GameObjects.GameObject implements ITreeElement, ISaveable<JSON> {
-    /**
-     * How long do we need to press to create leaves?
-     */
-    private static readonly LEAVES_PRESS_TIME = 300;
-
-    private _details: IBranchDetails;
+export default class BranchGameObject extends ITreeElement<JSON> {
+    private _details: ITreeElementDetails;
     private _branch: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
     private _leavesGroup: Phaser.GameObjects.Group;
     /**
      * What should the user input add?
      */
-    private _adding: AddMode = AddMode.NOTHING;
+    private _adding: InteractMode | null = null;
     /**
      * The type of this element.
      */
@@ -67,11 +34,11 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     */
     private _owner: ITreeElement;
 
-    constructor(scene: Phaser.Scene, details: IBranchDetails, owner: ITreeElement) {
+    constructor(scene: Phaser.Scene, details: ITreeElementDetails, owner: ITreeElement) {
         // Assign parameters.
         super(scene, BranchGameObject.name);
         this._details = details;
-        this._treeType = details.treeType;
+        this._treeType = TreeType.byId(details.treeType) || TreeType.BROADLEAF;
         this._owner = owner;
 
         // Create objects
@@ -106,7 +73,8 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
                 const leaves = l as LeavesGameObject;
                 return leaves.saveGame();
             }),
-            type: this.treeType.id
+            treeType: this.treeType.id,
+            elementType: TreeElementType.BRANCH
         }
     }
 
@@ -118,7 +86,8 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
                 x: branch.x,
                 y: branch.y,
                 angle: branch.angle,
-                treeType: this.treeType
+                treeType: this.treeType.id,
+                elementType: TreeElementType.BRANCH
             }).loadGame(branch);
         }
         for (let i = 0; i < json.leaves.length; i++) {
@@ -127,7 +96,9 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
                 id: leaves.id,
                 x: leaves.x,
                 y: leaves.y,
-                treeType: this.treeType
+                angle: 0,
+                treeType: this.treeType.id,
+                elementType: TreeElementType.LEAVES
             }).loadGame(leaves);
         }
     }
@@ -222,21 +193,17 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         return treeElements;
     }
 
-    public addLeaves(details: ILeavesDetails): LeavesGameObject {
+    public addLeaves(details: ITreeElementDetails): LeavesGameObject {
         const leaves = new LeavesGameObject(this.scene, details, this);
         this._leavesGroup.add(leaves);
+        leaves.on("interact", (e: IInteractEvent) => this.emit("interact", e));
         return leaves;
     }
 
-    public addBranch(details: IBranchDetails): BranchGameObject {
+    public addBranch(details: ITreeElementDetails): BranchGameObject {
         const branch = new BranchGameObject(this.scene, details, this);
         this._branchGroup.add(branch);
-        branch.on("add-branch", (details: IBranchDetails) => {
-            this.emit("add-branch", details);
-        });
-        branch.on("add-leaves", (details: ILeavesDetails) => {
-            this.emit("add-leaves", details);
-        });
+        branch.on("interact", (e: IInteractEvent) => this.emit("interact", e));
         return branch;
     }
 
@@ -245,7 +212,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
      * @param e The pointer event.
      */
     private onPointerOut(e: Phaser.Input.Pointer) {
-        this._adding = AddMode.NOTHING;
+        this._adding = null;
     }
 
     /**
@@ -255,7 +222,7 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     private onPointerDown(e: Phaser.Input.Pointer) {
         // We check for the right mouse button here instead of in the pointer up 
         // event since the mouse button has already been released in up.
-        this._adding = e.rightButtonDown() ? AddMode.LEAVES : AddMode.BRANCH;
+        this._adding = e.rightButtonDown() ? InteractMode.SECONDARY : InteractMode.PRIMARY;
         this._pressTime = this.scene.time.now;
     }
 
@@ -264,12 +231,12 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
      * @param e The pointer event.
      */
     private onPointerUp(e: Phaser.Input.Pointer) {
-        if (this._adding === AddMode.NOTHING) {
+        if (this._adding === null) {
             return;
         }
         // Check if we pressed long enough for adding leaves.
-        if (this.scene.time.now - this._pressTime >= BranchGameObject.LEAVES_PRESS_TIME) {
-            this._adding = AddMode.LEAVES;
+        if (this.scene.time.now - this._pressTime >= INTERACT_PRESS_TIME) {
+            this._adding = InteractMode.SECONDARY;
         }
         // Calcuate the spawn posiion & other params.
         const offsetX = e.worldX - this.x;
@@ -280,24 +247,12 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         const x = rotX / this.width;
         const y = rotY / this.height;
         // Emit either an add leaves or add branch event.
-        if (this._adding === AddMode.LEAVES) {
-            this.emit("add-leaves", {
-                id: uuid(),
-                parent: this,
-                treeType: this.treeType,
-                x: x,
-                y: y
-            });
-        } else if (this._adding === AddMode.BRANCH) {
-            this.emit("add-branch", {
-                id: uuid(),
-                parent: this,
-                angle: 20,
-                treeType: this.treeType,
-                x: x,
-                y: y
-            });
-        }
+        this.emit("interact", {
+            mode: this._adding,
+            element: this,
+            x: x,
+            y: y
+        } as IInteractEvent);
     }
 
     private onUpdate(time: number, deltaTime: number) {
@@ -312,11 +267,12 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     }
 
     private onDestroy() {
-        this._branch.destroy(true);
+        this._branch.destroy();
         this._branchGroup.destroy(true);
         this._leavesGroup.destroy(true);
         this.scene.events.off("update", this.onUpdate, this, false);
         this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, this.onPointerUp, this, false);
         this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.onPointerDown, this, false);
+        this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_OUT, this.onPointerDown, this, false);
     }
 }

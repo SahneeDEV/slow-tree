@@ -68,12 +68,12 @@
                 </v-layout>
                 <v-layout wrap>
                   <v-flex xs12>
-                    <v-slider 
+                    <v-slider
                       label="Angle of banches"
-                      max=90
-                      min=-90
+                      max="90"
+                      min="-90"
                       thumb-label
-                      v-model="brancheAngle"
+                      v-model="angle"
                     ></v-slider>
                   </v-flex>
                 </v-layout>
@@ -85,6 +85,15 @@
         <v-toolbar-items>
           <v-btn icon :disabled="!scene" flat @click.stop="onClickDelete()">
             <v-icon>delete</v-icon>
+          </v-btn>
+          <v-btn
+            icon
+            :disabled="!scene"
+            flat
+            @click.stop="onClickBurnTree()"
+            :color="burnTree ? 'red' : ''"
+          >
+            <v-icon>whatshot</v-icon>
           </v-btn>
           <v-menu offset-y>
             <v-btn icon flat slot="activator" :disabled="!scene">
@@ -151,8 +160,14 @@
           <p>slow-tree is a web based 2D-tree creation application.</p>
           <p>
             You can create new
-            <strong>branches by left-clicking/tapping</strong> on the trunk. Create
+            <strong>branches by left-clicking/tapping</strong> on the trunk/branch. Create
             <strong>leaves by right-clicking/long-tapping</strong> on a branch.
+          </p>
+          <p>Delete elements by activating
+            <v-icon>whatshot</v-icon>burn mode. In this mode clicking/tapping on a tree element will destroy it and its children.
+          </p>
+          <p>Make sure to check out the
+            <v-icon>settings</v-icon>settings menu for changing the type of your tree, the angle of branches and other settings.
           </p>
         </v-card-text>
         <v-card-actions>
@@ -162,9 +177,11 @@
       </v-card>
     </v-dialog>
 
-     <v-snackbar
-      v-model="oldSavegameVersion"
-    >{{ errorMessage }}</v-snackbar>
+    <v-snackbar
+      v-model="burnTreeSnackbar"
+    >Enabled burn mode, clicking on tree elements will now destroy them and all their children.</v-snackbar>
+
+    <v-snackbar v-model="oldSavegameVersion">{{ errorMessage }}</v-snackbar>
   </div>
 </template>
 
@@ -173,17 +190,19 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import Game from "@/Game";
 import TreeDesignerScene from "@/scenes/TreeDesignerScene";
 import {
-  IBranchDetails,
-  ILeavesDetails,
-  IDetailsWithOwner
+  IOwnedTreeElementDetails,
+  IInteractEvent,
+  InteractMode,
+  TreeElementType
 } from "@/gameobjects/IBranchContainer";
-import AddBranchCommand from "@/commands/AddBranchCommand";
-import AddLeavesCommand from "@/commands/AddLeavesCommand";
+import AddTreeElementCommand from "@/commands/AddTreeElementCommand";
 import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
 import ChangeWholeTreeCommand from "@/commands/ChangeWholeTreeCommand";
+import DestroyTreeElementCommand from "@/commands/DestroyTreeElementCommand";
 import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
+import uuid from "@/utils/uuid";
 
 interface IMenuItem {
   id: string;
@@ -204,15 +223,24 @@ export default class STApp extends Vue {
   private items: IMenuItem[] = [
     { id: "about", title: "About", icon: "question_answer" },
     { id: "code", title: "Source Code", icon: "code" },
-    { id: "privacy", title: "Privacy Policy", icon: "vpn_key" }
+    { id: "privacy", title: "Privacy Policy", icon: "vpn_key" },
+    { id: "tutorial", title: "Tutorial", icon: "help" }
   ];
   private tutorial: boolean = true;
-  right = null;
-  background: string | null = null;
-  tree: string = "broadleaf";
-  brancheAngle: integer = 0;
-  oldSavegameVersion: boolean = false;
-  errorMessage: string = "";
+  private burnTree: boolean = false;
+  private burnTreeSnackbar: boolean = false;
+  private right = null;
+  private background: string | null = null;
+  private tree: string = "broadleaf";
+  private drawer = true;
+  private mini = true;
+  private dialog = false;
+  private settingsmenu = false;
+  private trees = this.getAllTrees();
+  private backgrounds = this.getAllBackgrounds();
+  private angle: integer = 25;
+  private oldSavegameVersion: boolean = false;
+  private errorMessage: string = "";
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
@@ -265,8 +293,7 @@ export default class STApp extends Vue {
     console.log("Scene ready, waiting for input ...", scene);
     this.scene = scene;
     // Hook up scene events
-    scene.tree.on("add-branch", this.onAddBranch);
-    scene.tree.on("add-leaves", this.onAddLeaves);
+    scene.tree.on("interact", this.onTreeInteract, this);
     scene.background.on("new-background", this.onNewBackground);
     this.onNewBackground(scene.background.backgroundImage);
     // Check cache
@@ -274,12 +301,11 @@ export default class STApp extends Vue {
     if (cache) {
       const json = JSON.parse(cache);
       try {
-            scene.loadGame(json);
-            this.cache();
-          }
-      catch (error) {
+        scene.loadGame(json);
+        this.cache();
+      } catch (error) {
         this.oldSavegameVersion = true;
-        localStorage.removeItem(cache);
+        localStorage.removeItem("cache");
         console.error("Failed to load savegame. Reason: " + error.message);
         this.errorMessage = error.message;
       }
@@ -306,37 +332,40 @@ export default class STApp extends Vue {
         window.open("https://github.com/PatrickSachs/slow-tree/");
         break;
       }
+      case "tutorial": {
+        this.tutorial = true;
+        localStorage.setItem("tutorial", "false");
+        break;
+      }
     }
   }
 
-  /**
-   * Called whenever a branch is left-clicked.
-   */
-  onAddBranch(details: IBranchDetails & IDetailsWithOwner) {
-    const treeType = TreeType.byId(this.tree);
-    if (treeType != null) {
-      details.treeType = treeType;
+  onTreeInteract(e: IInteractEvent) {
+    if (this.burnTree) {
+      if (e.mode === InteractMode.PRIMARY) {
+        if (e.element !== this.scene!.tree) {
+          this.game!.cmd.execute(
+            new DestroyTreeElementCommand(this.scene!.tree, e.element.id)
+          );
+        }
+      }
+      // todo: Can we somehow use the secondary interact mode for something here?
+    } else {
+      const treeType = TreeType.byId(this.tree) || TreeType.random();
+      this.game!.cmd.execute(
+        new AddTreeElementCommand(this.scene!.tree, e.element.id, {
+          id: uuid(),
+          x: e.x,
+          y: e.y,
+          angle: this.angle,
+          treeType: treeType.id,
+          elementType:
+            e.mode === InteractMode.PRIMARY
+              ? TreeElementType.BRANCH
+              : TreeElementType.LEAVES
+        })
+      );
     }
-    details.angle = details.angle + this.brancheAngle
-
-    this.game!.cmd.execute(
-      new AddBranchCommand(this.scene!.tree, details.parent.id, details)
-    );
-    this.cache();
-  }
-
-  /**
-   * Called whenever a branch is right-clicked.
-   */
-  onAddLeaves(details: ILeavesDetails & IDetailsWithOwner) {
-    const treeType = TreeType.byId(this.tree);
-    if (treeType != null) {
-      details.treeType = treeType;
-    }
-
-    this.game!.cmd.execute(
-      new AddLeavesCommand(this.scene!.tree, details.parent.id, details)
-    );
     this.cache();
   }
 
@@ -365,6 +394,11 @@ export default class STApp extends Vue {
     this.download("slow-tree.st", "application/json", json);
     console.log("Downloaded file ...", json);
     return json;
+  }
+
+  onClickBurnTree() {
+    this.burnTree = !this.burnTree;
+    this.burnTreeSnackbar = this.burnTree;
   }
 
   download(name: string, type: string, content: string) {
@@ -397,10 +431,9 @@ export default class STApp extends Vue {
         const json = JSON.parse(reader.result as string);
         console.log("Uploaded file ...", json);
         try {
-              scene.loadGame(json);
-              this.cache();
-            }
-        catch (error) {
+          scene.loadGame(json);
+          this.cache();
+        } catch (error) {
           this.oldSavegameVersion = true;
           console.error("Failed to load savegame. Reason: " + error.message);
           this.errorMessage = error.message;
@@ -519,15 +552,6 @@ export default class STApp extends Vue {
     this.tutorial = false;
     localStorage.setItem("tutorial", "true");
   }
-
-  drawer = true;
-  mini = true;
-
-  dialog = false;
-  settingsmenu = false;
-
-  trees = this.getAllTrees();
-  backgrounds = this.getAllBackgrounds();
 }
 </script>
 
