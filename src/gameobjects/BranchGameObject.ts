@@ -1,29 +1,7 @@
 import TreeType from "@/TreeType";
-import ITreeElement, { ITreeElementDetails, TreeElementType } from "./IBranchContainer";
+import ITreeElement, { ITreeElementDetails, TreeElementType, IInteractEvent, InteractMode } from "./IBranchContainer";
 import LeavesGameObject, { JSON as LeavesJSON } from "./LeavesGameObject";
 import rad from "../utils/rad";
-import uuid from "@/utils/uuid";
-
-/**
- * What should we create?
- */
-enum AddMode {
-    /**
-     * Dont't create anyhting. This is both the default value and the one the mode is reset 
-     * to when the button is released. (The latter is to fix the problem where a user would
-     * start clicking on one element, then move the mouse to another and release the button
-     * there).
-     */
-    NOTHING,
-    /**
-     * Create a branch.
-     */
-    BRANCH,
-    /**
-     * Create leaves.
-     */
-    LEAVES
-}
 
 export interface JSON extends ITreeElementDetails {
     branches: JSON[];
@@ -46,7 +24,7 @@ export default class BranchGameObject extends ITreeElement<JSON> {
     /**
      * What should the user input add?
      */
-    private _adding: AddMode = AddMode.NOTHING;
+    private _adding: InteractMode | null = null;
     /**
      * The type of this element.
      */
@@ -229,12 +207,7 @@ export default class BranchGameObject extends ITreeElement<JSON> {
     public addBranch(details: ITreeElementDetails): BranchGameObject {
         const branch = new BranchGameObject(this.scene, details, this);
         this._branchGroup.add(branch);
-        branch.on("add-branch", (details: ITreeElementDetails) => {
-            this.emit("add-branch", details);
-        });
-        branch.on("add-leaves", (details: ITreeElementDetails) => {
-            this.emit("add-leaves", details);
-        });
+        branch.on("interact", (e: IInteractEvent) => this.emit("interact", e));
         return branch;
     }
 
@@ -243,7 +216,7 @@ export default class BranchGameObject extends ITreeElement<JSON> {
      * @param e The pointer event.
      */
     private onPointerOut(e: Phaser.Input.Pointer) {
-        this._adding = AddMode.NOTHING;
+        this._adding = null;
     }
 
     /**
@@ -253,7 +226,7 @@ export default class BranchGameObject extends ITreeElement<JSON> {
     private onPointerDown(e: Phaser.Input.Pointer) {
         // We check for the right mouse button here instead of in the pointer up 
         // event since the mouse button has already been released in up.
-        this._adding = e.rightButtonDown() ? AddMode.LEAVES : AddMode.BRANCH;
+        this._adding = e.rightButtonDown() ? InteractMode.SECONDARY : InteractMode.PRIMARY;
         this._pressTime = this.scene.time.now;
     }
 
@@ -262,12 +235,12 @@ export default class BranchGameObject extends ITreeElement<JSON> {
      * @param e The pointer event.
      */
     private onPointerUp(e: Phaser.Input.Pointer) {
-        if (this._adding === AddMode.NOTHING) {
+        if (this._adding === null) {
             return;
         }
         // Check if we pressed long enough for adding leaves.
         if (this.scene.time.now - this._pressTime >= BranchGameObject.LEAVES_PRESS_TIME) {
-            this._adding = AddMode.LEAVES;
+            this._adding = InteractMode.SECONDARY;
         }
         // Calcuate the spawn posiion & other params.
         const offsetX = e.worldX - this.x;
@@ -278,27 +251,12 @@ export default class BranchGameObject extends ITreeElement<JSON> {
         const x = rotX / this.width;
         const y = rotY / this.height;
         // Emit either an add leaves or add branch event.
-        if (this._adding === AddMode.LEAVES) {
-            this.emit("add-leaves", {
-                id: uuid(),
-                parent: this,
-                angle: 0,
-                treeType: this.treeType.id,
-                elementType: TreeElementType.BRANCH,
-                x: x,
-                y: y
-            });
-        } else if (this._adding === AddMode.BRANCH) {
-            this.emit("add-branch", {
-                id: uuid(),
-                parent: this,
-                angle: 20,
-                treeType: this.treeType.id,
-                elementType: TreeElementType.LEAVES,
-                x: x,
-                y: y
-            });
-        }
+        this.emit("interact", {
+            mode: this._adding,
+            element: this,
+            x: x,
+            y: y
+        } as IInteractEvent);
     }
 
     private onUpdate(time: number, deltaTime: number) {

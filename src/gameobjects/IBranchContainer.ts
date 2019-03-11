@@ -122,4 +122,16 @@ export interface IOwnedTreeElementDetails extends ITreeElementDetails {
     parent: TreeElement;
 }
 
+export enum InteractMode {
+    PRIMARY,
+    SECONDARY
+}
+
+export interface IInteractEvent {
+    mode: InteractMode;
+    x: number;
+    y: number;
+    element: TreeElement;
+}
+
 export default TreeElement;

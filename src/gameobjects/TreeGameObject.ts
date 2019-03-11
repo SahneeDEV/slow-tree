@@ -1,6 +1,6 @@
 import TreeType from "@/TreeType";
 import BranchGameObject, { JSON as BranchJSON } from "./BranchGameObject";
-import ITreeElement, { ITreeElementDetails, TreeElementType } from "./IBranchContainer";
+import ITreeElement, { ITreeElementDetails, TreeElementType, IInteractEvent, InteractMode } from "./IBranchContainer";
 import LeavesGameObject from "./LeavesGameObject";
 import uuid from "@/utils/uuid";
 
@@ -149,15 +149,12 @@ export default class TreeGameObject extends ITreeElement<JSON> {
     private onPointerUp(e: Phaser.Input.Pointer) {
         const x = (e.worldX - this.x) / this.width;
         const y = (e.worldY - this.y) / this.height;
-        this.emit("add-branch", {
-            id: uuid(),
-            parent: this,
-            angle: 80,
-            treeType: this.treeType,
-            elementType: TreeElementType.BRANCH,
+        this.emit("interact", {
+            mode: InteractMode.PRIMARY,
+            element: this,
             x: x,
             y: y
-        });
+        } as IInteractEvent);
     }
 
     private onDestroy() {
@@ -173,12 +170,7 @@ export default class TreeGameObject extends ITreeElement<JSON> {
     public addBranch(details: ITreeElementDetails): BranchGameObject {
         const branch = new BranchGameObject(this.scene, details, this);
         this._branchGroup.add(branch);
-        branch.on("add-branch", (details: ITreeElementDetails) => {
-            this.emit("add-branch", details);
-        });
-        branch.on("add-leaves", (details: ITreeElementDetails) => {
-            this.emit("add-leaves", details);
-        });
+        branch.on("interact", (e: IInteractEvent) => this.emit("interact", e));
         return branch;
     }
 

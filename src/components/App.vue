@@ -173,7 +173,12 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Game from "@/Game";
 import TreeDesignerScene from "@/scenes/TreeDesignerScene";
-import { IOwnedTreeElementDetails } from "@/gameobjects/IBranchContainer";
+import {
+  IOwnedTreeElementDetails,
+  IInteractEvent,
+  InteractMode,
+  TreeElementType
+} from "@/gameobjects/IBranchContainer";
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
 import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
@@ -182,6 +187,7 @@ import DestroyTreeElementCommand from "@/commands/DestroyTreeElementCommand";
 import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
+import uuid from "@/utils/uuid";
 
 interface IMenuItem {
   id: string;
@@ -262,8 +268,7 @@ export default class STApp extends Vue {
     console.log("Scene ready, waiting for input ...", scene);
     this.scene = scene;
     // Hook up scene events
-    scene.tree.on("add-branch", this.onAddBranch);
-    scene.tree.on("add-leaves", this.onAddLeaves);
+    scene.tree.on("interact", this.onTreeInteract, this);
     scene.background.on("new-background", this.onNewBackground);
     this.onNewBackground(scene.background.backgroundImage);
     // Check cache
@@ -297,46 +302,40 @@ export default class STApp extends Vue {
     }
   }
 
-  /**
-   * Called whenever a branch is left-clicked.
-   */
-  onAddBranch(details: IOwnedTreeElementDetails) {
+  onTreeInteract(e: IInteractEvent) {
     if (this.burnTree) {
-      this.game!.cmd.execute(
-        new DestroyTreeElementCommand(this.scene!.tree, details.parent.id)
-      );
-    } else {
-      const treeType = TreeType.byId(this.tree);
-      if (treeType != null) {
-        details.treeType = treeType.id;
+      if (e.mode === InteractMode.PRIMARY) {
+        this.game!.cmd.execute(
+          new DestroyTreeElementCommand(this.scene!.tree, e.element.id)
+        );
       }
-
-      this.game!.cmd.execute(
-        new AddBranchCommand(this.scene!.tree, details.parent.id, details)
-      );
-    }
-    this.cache();
-  }
-
-  /**
-   * Called whenever a branch is right-clicked.
-   */
-  onAddLeaves(details: IOwnedTreeElementDetails) {
-    if (this.burnTree) {
-      this.game!.cmd.execute(
-        new DestroyTreeElementCommand(this.scene!.tree, details.parent.id)
-      );
+      // todo: Can we somehow use the secondary interact mode for something here?
     } else {
-      const treeType = TreeType.byId(this.tree);
-      if (treeType != null) {
-        details.treeType = treeType.id;
+      const treeType = TreeType.byId(this.tree) || TreeType.random();
+      if (e.mode === InteractMode.PRIMARY) {
+        this.game!.cmd.execute(
+          new AddBranchCommand(this.scene!.tree, e.element.id, {
+            id: uuid(),
+            x: e.x,
+            y: e.y,
+            angle: e.element.angle,
+            treeType: treeType.id,
+            elementType: TreeElementType.BRANCH
+          })
+        );
+      } else {
+        this.game!.cmd.execute(
+          new AddLeavesCommand(this.scene!.tree, e.element.id, {
+            id: uuid(),
+            x: e.x,
+            y: e.y,
+            angle: e.element.angle,
+            treeType: treeType.id,
+            elementType: TreeElementType.LEAVES
+          })
+        );
       }
-
-      this.game!.cmd.execute(
-        new AddLeavesCommand(this.scene!.tree, details.parent.id, details)
-      );
     }
-    this.cache();
   }
 
   /**
