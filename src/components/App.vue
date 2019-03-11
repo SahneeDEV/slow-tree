@@ -155,6 +155,9 @@
           <p>Delete elements by activating
             <v-icon>whatshot</v-icon>burn mode. In this mode clicking/tapping on a tree element will destroy it and its children.
           </p>
+          <p>Make sure to check out the
+            <v-icon>settings</v-icon>settings menu for changing the type of your tree, the angle of branches and other settings.
+          </p>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -207,7 +210,8 @@ export default class STApp extends Vue {
   private items: IMenuItem[] = [
     { id: "about", title: "About", icon: "question_answer" },
     { id: "code", title: "Source Code", icon: "code" },
-    { id: "privacy", title: "Privacy Policy", icon: "vpn_key" }
+    { id: "privacy", title: "Privacy Policy", icon: "vpn_key" },
+    { id: "tutorial", title: "Tutorial", icon: "help" }
   ];
   private tutorial: boolean = true;
   private burnTree: boolean = false;
@@ -302,6 +306,11 @@ export default class STApp extends Vue {
       }
       case "code": {
         window.open("https://github.com/PatrickSachs/slow-tree/");
+        break;
+      }
+      case "tutorial": {
+        this.tutorial = true;
+        localStorage.setItem("tutorial", "false");
         break;
       }
     }

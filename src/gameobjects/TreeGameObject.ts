@@ -2,7 +2,6 @@ import TreeType from "@/TreeType";
 import BranchGameObject, { JSON as BranchJSON } from "./BranchGameObject";
 import ITreeElement, { ITreeElementDetails, TreeElementType, IInteractEvent, InteractMode } from "./IBranchContainer";
 import LeavesGameObject from "./LeavesGameObject";
-import uuid from "@/utils/uuid";
 
 export interface JSON extends ITreeElementDetails {
     id: "tree";
