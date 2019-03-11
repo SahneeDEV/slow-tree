@@ -1,6 +1,5 @@
 import TreeType from "@/TreeType";
-import ISaveable from "@/ISaveable";
-import ITreeElement, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
+import ITreeElement, { ITreeElementDetails, TreeElementType } from "./IBranchContainer";
 import LeavesGameObject, { JSON as LeavesJSON } from "./LeavesGameObject";
 import rad from "../utils/rad";
 import uuid from "@/utils/uuid";
@@ -26,12 +25,7 @@ enum AddMode {
     LEAVES
 }
 
-export interface JSON {
-    id: string;
-    x: number;
-    y: number;
-    angle: number;
-    type: string;
+export interface JSON extends ITreeElementDetails {
     branches: JSON[];
     leaves: LeavesJSON[];
 }
@@ -39,13 +33,13 @@ export interface JSON {
 /**
  * A branch of a tree.
  */
-export default class BranchGameObject extends Phaser.GameObjects.GameObject implements ITreeElement, ISaveable<JSON> {
+export default class BranchGameObject extends ITreeElement<JSON> {
     /**
      * How long do we need to press to create leaves?
      */
     private static readonly LEAVES_PRESS_TIME = 300;
 
-    private _details: IBranchDetails;
+    private _details: ITreeElementDetails;
     private _branch: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
     private _leavesGroup: Phaser.GameObjects.Group;
@@ -67,11 +61,11 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
     */
     private _owner: ITreeElement;
 
-    constructor(scene: Phaser.Scene, details: IBranchDetails, owner: ITreeElement) {
+    constructor(scene: Phaser.Scene, details: ITreeElementDetails, owner: ITreeElement) {
         // Assign parameters.
         super(scene, BranchGameObject.name);
         this._details = details;
-        this._treeType = details.treeType;
+        this._treeType = TreeType.byId(details.treeType) || TreeType.BROADLEAF;
         this._owner = owner;
 
         // Create objects
@@ -106,7 +100,8 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
                 const leaves = l as LeavesGameObject;
                 return leaves.saveGame();
             }),
-            type: this.treeType.id
+            treeType: this.treeType.id,
+            elementType: TreeElementType.BRANCH
         }
     }
 
@@ -118,7 +113,8 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
                 x: branch.x,
                 y: branch.y,
                 angle: branch.angle,
-                treeType: this.treeType
+                treeType: this.treeType.id,
+                elementType: TreeElementType.BRANCH
             }).loadGame(branch);
         }
         for (let i = 0; i < json.leaves.length; i++) {
@@ -127,7 +123,9 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
                 id: leaves.id,
                 x: leaves.x,
                 y: leaves.y,
-                treeType: this.treeType
+                angle: 0,
+                treeType: this.treeType.id,
+                elementType: TreeElementType.LEAVES
             }).loadGame(leaves);
         }
     }
@@ -222,19 +220,19 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
         return treeElements;
     }
 
-    public addLeaves(details: ILeavesDetails): LeavesGameObject {
+    public addLeaves(details: ITreeElementDetails): LeavesGameObject {
         const leaves = new LeavesGameObject(this.scene, details, this);
         this._leavesGroup.add(leaves);
         return leaves;
     }
 
-    public addBranch(details: IBranchDetails): BranchGameObject {
+    public addBranch(details: ITreeElementDetails): BranchGameObject {
         const branch = new BranchGameObject(this.scene, details, this);
         this._branchGroup.add(branch);
-        branch.on("add-branch", (details: IBranchDetails) => {
+        branch.on("add-branch", (details: ITreeElementDetails) => {
             this.emit("add-branch", details);
         });
-        branch.on("add-leaves", (details: ILeavesDetails) => {
+        branch.on("add-leaves", (details: ITreeElementDetails) => {
             this.emit("add-leaves", details);
         });
         return branch;
@@ -284,7 +282,9 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
             this.emit("add-leaves", {
                 id: uuid(),
                 parent: this,
-                treeType: this.treeType,
+                angle: 0,
+                treeType: this.treeType.id,
+                elementType: TreeElementType.BRANCH,
                 x: x,
                 y: y
             });
@@ -293,7 +293,8 @@ export default class BranchGameObject extends Phaser.GameObjects.GameObject impl
                 id: uuid(),
                 parent: this,
                 angle: 20,
-                treeType: this.treeType,
+                treeType: this.treeType.id,
+                elementType: TreeElementType.LEAVES,
                 x: x,
                 y: y
             });

@@ -1,19 +1,21 @@
 import TreeType from "@/TreeType";
 import BranchGameObject, { JSON as BranchJSON } from "./BranchGameObject";
-import ITreeElement, { IBranchDetails, ILeavesDetails } from "./IBranchContainer";
+import ITreeElement, { ITreeElementDetails, TreeElementType } from "./IBranchContainer";
 import LeavesGameObject from "./LeavesGameObject";
-import ISaveable from "@/ISaveable";
 import uuid from "@/utils/uuid";
 
-export interface JSON {
+export interface JSON extends ITreeElementDetails {
+    id: "tree";
     branches: BranchJSON[];
-    type: string;
+    angle: 0;
+    x: 0;
+    y: 0;
 }
 
 /**
  * A tree in the application.
  */
-export default class TreeGameObject extends Phaser.GameObjects.GameObject implements ITreeElement, ISaveable<JSON> {
+export default class TreeGameObject extends ITreeElement<JSON> {
     private _trunk!: Phaser.GameObjects.Image;
     private _branchGroup: Phaser.GameObjects.Group;
     private _x: number;
@@ -48,17 +50,22 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
 
     saveGame(): JSON {
         return {
+            id: "tree",
             branches: this._branchGroup.children.entries.map(c => {
                 const branch = c as BranchGameObject;
                 return branch.saveGame();
             }),
-            type: this.treeType.id
+            angle: 0,
+            x: 0,
+            y: 0,
+            treeType: this.treeType.id,
+            elementType: TreeElementType.TRUNK
         }
     }
 
     loadGame(json: JSON): void {
         this._branchGroup.clear(true, true);
-        this.treeType = TreeType.byId(json.type) || TreeType.BROADLEAF;
+        this.treeType = TreeType.byId(json.treeType) || TreeType.BROADLEAF;
         for (let i = 0; i < json.branches.length; i++) {
             const branch = json.branches[i];
             this.addBranch({
@@ -66,7 +73,8 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
                 x: branch.x,
                 y: branch.y,
                 angle: branch.angle,
-                treeType: this.treeType
+                treeType: this.treeType.id,
+                elementType: TreeElementType.BRANCH
             }).loadGame(branch);
         }
     }
@@ -146,6 +154,7 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
             parent: this,
             angle: 80,
             treeType: this.treeType,
+            elementType: TreeElementType.BRANCH,
             x: x,
             y: y
         });
@@ -161,19 +170,19 @@ export default class TreeGameObject extends Phaser.GameObjects.GameObject implem
      * Adds a new branch to the tree.
      * @param details Information about the branch.
      */
-    public addBranch(details: IBranchDetails): BranchGameObject {
+    public addBranch(details: ITreeElementDetails): BranchGameObject {
         const branch = new BranchGameObject(this.scene, details, this);
         this._branchGroup.add(branch);
-        branch.on("add-branch", (details: IBranchDetails) => {
+        branch.on("add-branch", (details: ITreeElementDetails) => {
             this.emit("add-branch", details);
         });
-        branch.on("add-leaves", (details: ILeavesDetails) => {
+        branch.on("add-leaves", (details: ITreeElementDetails) => {
             this.emit("add-leaves", details);
         });
         return branch;
     }
 
-    public addLeaves(details: ILeavesDetails): LeavesGameObject {
+    public addLeaves(details: ITreeElementDetails): LeavesGameObject {
         throw new Error("Method not implemented.");
     }
 

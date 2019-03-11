@@ -1,4 +1,4 @@
-import { ILeavesDetails } from "@/gameobjects/IBranchContainer";
+import { ITreeElementDetails } from "@/gameobjects/IBranchContainer";
 import ICommand from "@/commands/ICommand";
 import LeavesGameObject from "@/gameobjects/LeavesGameObject";
 import TreeGameObject from "@/gameobjects/TreeGameObject";
@@ -6,7 +6,7 @@ import TreeGameObject from "@/gameobjects/TreeGameObject";
 export default class AddLeavesCommand implements ICommand {
     private leaves: LeavesGameObject | null = null;
 
-    constructor(private tree: TreeGameObject, private parent: string, private details: ILeavesDetails) {
+    constructor(private tree: TreeGameObject, private parent: string, private details: ITreeElementDetails) {
     }
 
     do(): void {

@@ -1,30 +1,26 @@
 import TreeType from "@/TreeType";
-import ISaveable from "@/ISaveable";
-import ITreeElement, { ILeavesDetails, IBranchDetails } from "./IBranchContainer";
+import TreeElement, { ITreeElementDetails, TreeElementType } from "./IBranchContainer";
 import rad from "@/utils/rad";
 import BranchGameObject from "./BranchGameObject";
 
-export interface JSON {
-    id: string;
-    x: number;
-    y: number;
-    type: string;
+export interface JSON extends ITreeElementDetails {
+    angle: 0;
 }
 
 /**
  * A branch of a tree.
  */
-export default class LeavesGameObject extends Phaser.GameObjects.GameObject implements ITreeElement, ISaveable<JSON> {
+export default class LeavesGameObject extends TreeElement<JSON> {
     private _treeType: TreeType;
-    private _details: ILeavesDetails;
+    private _details: ITreeElementDetails;
     private _leaves: Phaser.GameObjects.Image;
-    private _owner: ITreeElement;
+    private _owner: TreeElement;
 
-    constructor(scene: Phaser.Scene, details: ILeavesDetails, owner: ITreeElement) {
+    constructor(scene: Phaser.Scene, details: ITreeElementDetails, owner: TreeElement) {
         // Assign parameters.
         super(scene, LeavesGameObject.name);
         this._details = details;
-        this._treeType = details.treeType;
+        this._treeType = TreeType.byId(details.treeType) || TreeType.BROADLEAF;
         this._owner = owner;
 
         // Create objects
@@ -90,17 +86,17 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
         return null;
     }
     public generateTreeElements() {
-        let treeElements: ITreeElement[];
+        let treeElements: TreeElement[];
         treeElements = [this];
         return treeElements;
     }
 
-    addBranch(details: IBranchDetails): BranchGameObject {
+    addBranch(details: ITreeElementDetails): BranchGameObject {
         throw new Error("Not supported.");
     }
 
-    addLeaves(details: ILeavesDetails): LeavesGameObject {
-        throw new Error("Method not implemented.");
+    addLeaves(details: ITreeElementDetails): LeavesGameObject {
+        throw new Error("Not supported.");
     }
 
     saveGame(): JSON {
@@ -108,12 +104,14 @@ export default class LeavesGameObject extends Phaser.GameObjects.GameObject impl
             id: this._details.id,
             x: this._details.x,
             y: this._details.y,
-            type: this._treeType.id
+            angle: 0,
+            treeType: this._treeType.id,
+            elementType: TreeElementType.LEAVES
         }
     }
 
     loadGame(json: JSON): void {
-        this.treeType = TreeType.byId(json.type) || TreeType.BROADLEAF;
+        this.treeType = TreeType.byId(json.treeType) || TreeType.BROADLEAF;
     }
 
     private onUpdate(time: number, deltaTime: number) {

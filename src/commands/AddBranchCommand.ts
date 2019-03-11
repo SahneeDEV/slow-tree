@@ -1,4 +1,4 @@
-import { IBranchDetails } from "@/gameobjects/IBranchContainer";
+import { ITreeElementDetails } from "@/gameobjects/IBranchContainer";
 import BranchGameObject from "@/gameobjects/BranchGameObject";
 import TreeGameObject from "@/gameobjects/TreeGameObject";
 import ICommand from "@/commands/ICommand";
@@ -6,7 +6,7 @@ import ICommand from "@/commands/ICommand";
 export default class AddBranchCommand implements ICommand {
     private branch: BranchGameObject | null = null;
 
-    constructor(private tree: TreeGameObject, private parent: string, private details: IBranchDetails) {
+    constructor(private tree: TreeGameObject, private parent: string, private details: ITreeElementDetails) {
     }
 
     do(): void {

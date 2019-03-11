@@ -75,6 +75,15 @@
           <v-btn icon :disabled="!scene" flat @click.stop="onClickDelete()">
             <v-icon>delete</v-icon>
           </v-btn>
+          <v-btn
+            icon
+            :disabled="!scene"
+            flat
+            @click.stop="onClickBurnTree()"
+            :color="burnTree ? 'red' : ''"
+          >
+            <v-icon>whatshot</v-icon>
+          </v-btn>
           <v-menu offset-y>
             <v-btn icon flat slot="activator" :disabled="!scene">
               <v-icon>cloud_download</v-icon>
@@ -140,8 +149,11 @@
           <p>slow-tree is a web based 2D-tree creation application.</p>
           <p>
             You can create new
-            <strong>branches by left-clicking/tapping</strong> on the trunk. Create
+            <strong>branches by left-clicking/tapping</strong> on the trunk/branch. Create
             <strong>leaves by right-clicking/long-tapping</strong> on a branch.
+          </p>
+          <p>Delete elements by activating
+            <v-icon>whatshot</v-icon>burn mode. In this mode clicking/tapping on a tree element will destroy it and its children.
           </p>
         </v-card-text>
         <v-card-actions>
@@ -150,6 +162,10 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-snackbar
+      v-model="burnTreeSnackbar"
+    >Enabled burn mode, clicking on tree elements will now destroy them and all their children.</v-snackbar>
   </div>
 </template>
 
@@ -157,15 +173,12 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Game from "@/Game";
 import TreeDesignerScene from "@/scenes/TreeDesignerScene";
-import {
-  IBranchDetails,
-  ILeavesDetails,
-  IDetailsWithOwner
-} from "@/gameobjects/IBranchContainer";
+import { IOwnedTreeElementDetails } from "@/gameobjects/IBranchContainer";
 import AddBranchCommand from "@/commands/AddBranchCommand";
 import AddLeavesCommand from "@/commands/AddLeavesCommand";
 import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
 import ChangeWholeTreeCommand from "@/commands/ChangeWholeTreeCommand";
+import DestroyTreeElementCommand from "@/commands/DestroyTreeElementCommand";
 import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
@@ -192,6 +205,8 @@ export default class STApp extends Vue {
     { id: "privacy", title: "Privacy Policy", icon: "vpn_key" }
   ];
   private tutorial: boolean = true;
+  private burnTree: boolean = false;
+  private burnTreeSnackbar: boolean = false;
   right = null;
   background: string | null = null;
   tree: string = "broadleaf";
@@ -285,30 +300,42 @@ export default class STApp extends Vue {
   /**
    * Called whenever a branch is left-clicked.
    */
-  onAddBranch(details: IBranchDetails & IDetailsWithOwner) {
-    const treeType = TreeType.byId(this.tree);
-    if (treeType != null) {
-      details.treeType = treeType;
-    }
+  onAddBranch(details: IOwnedTreeElementDetails) {
+    if (this.burnTree) {
+      this.game!.cmd.execute(
+        new DestroyTreeElementCommand(this.scene!.tree, details.parent.id)
+      );
+    } else {
+      const treeType = TreeType.byId(this.tree);
+      if (treeType != null) {
+        details.treeType = treeType.id;
+      }
 
-    this.game!.cmd.execute(
-      new AddBranchCommand(this.scene!.tree, details.parent.id, details)
-    );
+      this.game!.cmd.execute(
+        new AddBranchCommand(this.scene!.tree, details.parent.id, details)
+      );
+    }
     this.cache();
   }
 
   /**
    * Called whenever a branch is right-clicked.
    */
-  onAddLeaves(details: ILeavesDetails & IDetailsWithOwner) {
-    const treeType = TreeType.byId(this.tree);
-    if (treeType != null) {
-      details.treeType = treeType;
-    }
+  onAddLeaves(details: IOwnedTreeElementDetails) {
+    if (this.burnTree) {
+      this.game!.cmd.execute(
+        new DestroyTreeElementCommand(this.scene!.tree, details.parent.id)
+      );
+    } else {
+      const treeType = TreeType.byId(this.tree);
+      if (treeType != null) {
+        details.treeType = treeType.id;
+      }
 
-    this.game!.cmd.execute(
-      new AddLeavesCommand(this.scene!.tree, details.parent.id, details)
-    );
+      this.game!.cmd.execute(
+        new AddLeavesCommand(this.scene!.tree, details.parent.id, details)
+      );
+    }
     this.cache();
   }
 
@@ -337,6 +364,11 @@ export default class STApp extends Vue {
     this.download("slow-tree.st", "application/json", json);
     console.log("Downloaded file ...", json);
     return json;
+  }
+
+  onClickBurnTree() {
+    this.burnTree = !this.burnTree;
+    this.burnTreeSnackbar = this.burnTree;
   }
 
   download(name: string, type: string, content: string) {
