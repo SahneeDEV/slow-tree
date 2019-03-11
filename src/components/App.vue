@@ -66,6 +66,17 @@
                     ></v-select>
                   </v-flex>
                 </v-layout>
+                <v-layout wrap>
+                  <v-flex xs12>
+                    <v-slider 
+                      label="Angle of banches"
+                      max=90
+                      min=-90
+                      thumb-label
+                      v-model="brancheAngle"
+                    ></v-slider>
+                  </v-flex>
+                </v-layout>
               </v-container>
             </v-card-text>
           </v-card>
@@ -150,6 +161,10 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+     <v-snackbar
+      v-model="oldSavegameVersion"
+    >{{ errorMessage }}</v-snackbar>
   </div>
 </template>
 
@@ -195,6 +210,9 @@ export default class STApp extends Vue {
   right = null;
   background: string | null = null;
   tree: string = "broadleaf";
+  brancheAngle: integer = 0;
+  oldSavegameVersion: boolean = false;
+  errorMessage: string = "";
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
@@ -255,7 +273,16 @@ export default class STApp extends Vue {
     const cache = localStorage.getItem("cache");
     if (cache) {
       const json = JSON.parse(cache);
-      scene.loadGame(json);
+      try {
+            scene.loadGame(json);
+            this.cache();
+          }
+      catch (error) {
+        this.oldSavegameVersion = true;
+        localStorage.removeItem(cache);
+        console.error("Failed to load savegame. Reason: " + error.message);
+        this.errorMessage = error.message;
+      }
     }
     //Fill the tree variable with the current tree id
     this.tree = scene.tree.treeType.id;
@@ -290,6 +317,7 @@ export default class STApp extends Vue {
     if (treeType != null) {
       details.treeType = treeType;
     }
+    details.angle = details.angle + this.brancheAngle
 
     this.game!.cmd.execute(
       new AddBranchCommand(this.scene!.tree, details.parent.id, details)
@@ -368,8 +396,15 @@ export default class STApp extends Vue {
       reader.onload = () => {
         const json = JSON.parse(reader.result as string);
         console.log("Uploaded file ...", json);
-        scene.loadGame(json);
-        this.cache();
+        try {
+              scene.loadGame(json);
+              this.cache();
+            }
+        catch (error) {
+          this.oldSavegameVersion = true;
+          console.error("Failed to load savegame. Reason: " + error.message);
+          this.errorMessage = error.message;
+        }
       };
       reader.readAsText(file);
     };
