@@ -305,7 +305,7 @@ export default class STApp extends Vue {
         this.cache();
       } catch (error) {
         this.oldSavegameVersion = true;
-        localStorage.removeItem(cache);
+        localStorage.removeItem("cache");
         console.error("Failed to load savegame. Reason: " + error.message);
         this.errorMessage = error.message;
       }
