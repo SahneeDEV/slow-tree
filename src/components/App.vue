@@ -73,7 +73,7 @@
                       max="90"
                       min="-90"
                       thumb-label
-                      v-model="brancheAngle"
+                      v-model="angle"
                     ></v-slider>
                   </v-flex>
                 </v-layout>
@@ -238,7 +238,7 @@ export default class STApp extends Vue {
   private settingsmenu = false;
   private trees = this.getAllTrees();
   private backgrounds = this.getAllBackgrounds();
-  private brancheAngle: integer = 0;
+  private angle: integer = 25;
   private oldSavegameVersion: boolean = false;
   private errorMessage: string = "";
 
@@ -355,7 +355,7 @@ export default class STApp extends Vue {
           id: uuid(),
           x: e.x,
           y: e.y,
-          angle: e.element.angle,
+          angle: this.angle,
           treeType: treeType.id,
           elementType:
             e.mode === InteractMode.PRIMARY
