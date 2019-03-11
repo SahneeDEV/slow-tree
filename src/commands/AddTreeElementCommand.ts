@@ -1,10 +1,10 @@
+import TreeElement from "./../gameobjects/IBranchContainer";
 import { ITreeElementDetails } from "@/gameobjects/IBranchContainer";
-import BranchGameObject from "@/gameobjects/BranchGameObject";
 import TreeGameObject from "@/gameobjects/TreeGameObject";
 import ICommand from "@/commands/ICommand";
 
-export default class AddBranchCommand implements ICommand {
-    private branch: BranchGameObject | null = null;
+export default class AddTreeElementCommand implements ICommand {
+    private element: TreeElement | null = null;
 
     constructor(private tree: TreeGameObject, private parent: string, private details: ITreeElementDetails) {
     }
@@ -12,13 +12,13 @@ export default class AddBranchCommand implements ICommand {
     do(): void {
         const owner = this.tree.find(this.parent);
         if (owner) {
-            this.branch = owner.addBranch(this.details);
+            this.element = owner.addTreeElement(this.details);
         }
     }
 
     undo(): void {
-        if (this.branch) {
-            this.branch.destroy();
+        if (this.element) {
+            this.element.destroy();
         }
     }
 }

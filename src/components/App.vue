@@ -179,8 +179,7 @@ import {
   InteractMode,
   TreeElementType
 } from "@/gameobjects/IBranchContainer";
-import AddBranchCommand from "@/commands/AddBranchCommand";
-import AddLeavesCommand from "@/commands/AddLeavesCommand";
+import AddTreeElementCommand from "@/commands/AddTreeElementCommand";
 import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
 import ChangeWholeTreeCommand from "@/commands/ChangeWholeTreeCommand";
 import DestroyTreeElementCommand from "@/commands/DestroyTreeElementCommand";
@@ -312,29 +311,19 @@ export default class STApp extends Vue {
       // todo: Can we somehow use the secondary interact mode for something here?
     } else {
       const treeType = TreeType.byId(this.tree) || TreeType.random();
-      if (e.mode === InteractMode.PRIMARY) {
-        this.game!.cmd.execute(
-          new AddBranchCommand(this.scene!.tree, e.element.id, {
-            id: uuid(),
-            x: e.x,
-            y: e.y,
-            angle: e.element.angle,
-            treeType: treeType.id,
-            elementType: TreeElementType.BRANCH
-          })
-        );
-      } else {
-        this.game!.cmd.execute(
-          new AddLeavesCommand(this.scene!.tree, e.element.id, {
-            id: uuid(),
-            x: e.x,
-            y: e.y,
-            angle: e.element.angle,
-            treeType: treeType.id,
-            elementType: TreeElementType.LEAVES
-          })
-        );
-      }
+      this.game!.cmd.execute(
+        new AddTreeElementCommand(this.scene!.tree, e.element.id, {
+          id: uuid(),
+          x: e.x,
+          y: e.y,
+          angle: e.element.angle,
+          treeType: treeType.id,
+          elementType:
+            e.mode === InteractMode.PRIMARY
+              ? TreeElementType.BRANCH
+              : TreeElementType.LEAVES
+        })
+      );
     }
   }
 
