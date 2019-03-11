@@ -279,6 +279,7 @@ export default class STApp extends Vue {
           }
       catch (error) {
         this.oldSavegameVersion = true;
+        localStorage.removeItem(cache);
         console.log(error.message);
         this.errorMessage = error.message;
       }
