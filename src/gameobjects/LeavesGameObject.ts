@@ -111,6 +111,7 @@ export default class LeavesGameObject extends TreeElement<JSON> {
     }
 
     addLeaves(details: ITreeElementDetails): LeavesGameObject {
+        // todo: Allow leaves on leaves
         throw new Error("Not supported.");
     }
 
@@ -129,7 +130,7 @@ export default class LeavesGameObject extends TreeElement<JSON> {
         this.treeType = TreeType.byId(json.treeType) || TreeType.BROADLEAF;
     }
 
-/**
+    /**
      * Called whenever the mous eleaves the branch.
      * @param e The pointer event.
      */

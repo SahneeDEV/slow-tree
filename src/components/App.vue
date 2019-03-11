@@ -203,6 +203,7 @@ import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
 import uuid from "@/utils/uuid";
+import LeavesGameObject from "@/gameobjects/LeavesGameObject";
 
 interface IMenuItem {
   id: string;
@@ -351,20 +352,22 @@ export default class STApp extends Vue {
       }
       // todo: Can we somehow use the secondary interact mode for something here?
     } else {
-      const treeType = TreeType.byId(this.tree) || TreeType.random();
-      this.game!.cmd.execute(
-        new AddTreeElementCommand(this.scene!.tree, e.element.id, {
-          id: uuid(),
-          x: e.x,
-          y: e.y,
-          angle: this.angle,
-          treeType: treeType.id,
-          elementType:
-            e.mode === InteractMode.PRIMARY
-              ? TreeElementType.BRANCH
-              : TreeElementType.LEAVES
-        })
-      );
+      if (!(e.element instanceof LeavesGameObject)) {
+        const treeType = TreeType.byId(this.tree) || TreeType.random();
+        this.game!.cmd.execute(
+          new AddTreeElementCommand(this.scene!.tree, e.element.id, {
+            id: uuid(),
+            x: e.x,
+            y: e.y,
+            angle: this.angle,
+            treeType: treeType.id,
+            elementType:
+              e.mode === InteractMode.PRIMARY
+                ? TreeElementType.BRANCH
+                : TreeElementType.LEAVES
+          })
+        );
+      }
     }
     this.cache();
   }
