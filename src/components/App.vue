@@ -364,6 +364,7 @@ export default class STApp extends Vue {
         })
       );
     }
+    this.cache();
   }
 
   /**
