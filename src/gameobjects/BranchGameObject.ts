@@ -268,8 +268,8 @@ export default class BranchGameObject extends ITreeElement<JSON> {
 
     private onDestroy() {
         this._branch.destroy();
-        this._branchGroup.destroy();
-        this._leavesGroup.destroy();
+        this._branchGroup.destroy(true);
+        this._leavesGroup.destroy(true);
         this.scene.events.off("update", this.onUpdate, this, false);
         this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, this.onPointerUp, this, false);
         this._branch.off(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.onPointerDown, this, false);
