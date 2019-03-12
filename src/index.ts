@@ -3,6 +3,7 @@ import App from "./components/App.vue";
 import Vuetify from 'vuetify';
 // TODO: Serve as seperate CSS file -> https://vuetifyjs.com/en/getting-started/quick-start (CDN section)
 import 'vuetify/dist/vuetify.min.css';
+import "./register-serviceworker";
 
 Vue.use(Vuetify);
 

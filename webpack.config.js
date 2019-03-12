@@ -1,10 +1,12 @@
-var path = require('path');
-var webpack = require('webpack');
-var BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
+const CopyPlugin = require('copy-webpack-plugin');
+const CleanPlugin = require("clean-webpack-plugin");
+const WorkboxPlugin = require("workbox-webpack-plugin");
 
 const isProduction = process.env.NODE_ENV === "production";
-
 console.log("Running in production mode?", isProduction);
 
 // ===============================================
@@ -17,24 +19,36 @@ const watch = !isProduction;
 // PLUGINS
 // ===============================================
 const plugins = [];
+plugins.push(new CleanPlugin());
 plugins.push(new VueLoaderPlugin());
 plugins.push(new webpack.DefinePlugin({
   CANVAS_RENDERER: JSON.stringify(true),
-  WEBGL_RENDERER: JSON.stringify(true)
+  WEBGL_RENDERER: JSON.stringify(true),
+  'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
 }));
+plugins.push(new CopyPlugin(["index.html", { from: "assets", to: "assets" }]));
 if (!isProduction) {
   plugins.push(new BrowserSyncPlugin({
     host: process.env.IP || 'localhost',
     port: process.env.PORT || 3000,
     server: {
-      baseDir: ['./', './build']
+      baseDir: ['./dist']
     }
   }));
+}
+if (isProduction) {
+  plugins.push(new WorkboxPlugin.GenerateSW({
+    swDest: "serviceworker.js",
+    clientsClaim: true,
+    importWorkboxFrom: "local",
+    skipWaiting: true
+  }))
 }
 
 module.exports = {
   entry: {
     app: [path.resolve(__dirname, 'src/index.ts')],
+    //sw: [path.resolve(__dirname, 'src/serviceworker/index.ts')],
     vendor: ['phaser']
   },
   mode: mode,
@@ -42,7 +56,7 @@ module.exports = {
   output: {
     //pathinfo: true,
     path: path.resolve(__dirname, 'dist'),
-    publicPath: './dist/',
+    publicPath: '/',
     filename: '[name].bundle.js'
   },
   watch: watch,
@@ -50,7 +64,7 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js', '.vue'],
     alias: {
-      "@":  path.resolve(__dirname, 'src/')
+      "@": path.resolve(__dirname, 'src/')
     }
   },
   module: {

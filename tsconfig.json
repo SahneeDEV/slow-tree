@@ -6,7 +6,8 @@
     "moduleResolution": "node",
     "lib": [
       "dom",
-      "es7"
+      "es7",
+      "webworker"
     ], /* Specify library files to be included in the compilation. */
     // "allowJs": true,                       /* Allow javascript files to be compiled. */
     // "checkJs": true,                       /* Report errors in .js files. */

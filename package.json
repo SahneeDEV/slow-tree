@@ -22,6 +22,7 @@
   "author": "Patrick Sachs & Jakob Heubl",
   "license": "",
   "dependencies": {
+    "clean-webpack-plugin": "^2.0.0",
     "phaser": "^3.16.2",
     "phaser3-nineslice": "git+https://github.com/PatrickSachs/phaser3-nineslice.git#types",
     "vue": "^2.6.6",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "browser-sync": "^2.26.3",
     "browser-sync-webpack-plugin": "^2.2.2",
+    "copy-webpack-plugin": "^5.0.1",
     "css-loader": "^2.1.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",
@@ -39,6 +41,8 @@
     "vue-loader": "^15.6.2",
     "vue-template-compiler": "^2.6.6",
     "webpack": "^4.29.4",
-    "webpack-cli": "^3.2.1"
+    "webpack-cli": "^3.2.1",
+    "@types/workbox-sw": "^3.2.0",
+    "workbox-webpack-plugin": "^4.1.0"
   }
 }
