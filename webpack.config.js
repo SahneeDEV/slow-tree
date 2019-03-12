@@ -15,7 +15,7 @@ dotenv.config({ path: ".env.local" });
 dotenv.config({ path: isProduction ? ".env.prod" : ".env.dev" });
 dotenv.config({ path: ".env" });
 
-console.log("Enviroment variables are:", {
+console.log("Environment variables are:", {
   NODE_ENV: process.env.NODE_ENV,
   SERVICE_WORKER: process.env.SERVICE_WORKER,
   BROWSERSYNC: process.env.BROWSERSYNC
