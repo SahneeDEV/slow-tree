@@ -19,14 +19,13 @@ const watch = !isProduction;
 // PLUGINS
 // ===============================================
 const plugins = [];
-plugins.push(new CleanPlugin());
 plugins.push(new VueLoaderPlugin());
 plugins.push(new webpack.DefinePlugin({
   CANVAS_RENDERER: JSON.stringify(true),
   WEBGL_RENDERER: JSON.stringify(true),
   'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
 }));
-plugins.push(new CopyPlugin(["index.html", { from: "assets", to: "assets" }]));
+plugins.push(new CopyPlugin(["index.html", "manifest.json", { from: "assets", to: "assets" }]));
 if (!isProduction) {
   plugins.push(new BrowserSyncPlugin({
     host: process.env.IP || 'localhost',
@@ -37,6 +36,7 @@ if (!isProduction) {
   }));
 }
 if (isProduction) {
+  plugins.push(new CleanPlugin());
   plugins.push(new WorkboxPlugin.GenerateSW({
     swDest: "serviceworker.js",
     clientsClaim: true,

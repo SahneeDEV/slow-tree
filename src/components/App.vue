@@ -6,7 +6,7 @@
           <v-list class="pa-0">
             <v-list-tile avatar>
               <v-list-tile-avatar>
-                <img src="/assets/images/favicon.ico">
+                <img src="/assets/images/icons/favicon.ico">
               </v-list-tile-avatar>
 
               <v-list-tile-content>
@@ -299,20 +299,24 @@ export default class STApp extends Vue {
     this.onNewBackground(scene.background.backgroundImage);
     // Check cache
     const cache = localStorage.getItem("cache");
+    let willCache = true;
     if (cache) {
       const json = JSON.parse(cache);
       try {
         scene.loadGame(json);
-        this.cache();
       } catch (error) {
         this.oldSavegameVersion = true;
         localStorage.removeItem("cache");
         console.error("Failed to load savegame. Reason: " + error.message);
         this.errorMessage = error.message;
+        willCache = false;
       }
     }
     //Fill the tree variable with the current tree id
     this.tree = scene.tree.treeType.id;
+    if (willCache) {
+      this.cache();
+    }
   }
 
   /**
