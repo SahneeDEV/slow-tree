@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const dotenv = require("dotenv");
 const webpack = require('webpack');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
@@ -8,12 +9,17 @@ const CleanPlugin = require("clean-webpack-plugin");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 
 const isProduction = process.env.NODE_ENV === "production";
+process.env.NODE_ENV = isProduction ? "production" : "development";
 
 dotenv.config({ path: ".env.local" });
 dotenv.config({ path: isProduction ? ".env.prod" : ".env.dev" });
 dotenv.config({ path: ".env" });
 
-console.log("Enviroment variables are:", process.env);
+console.log("Enviroment variables are:", {
+  NODE_ENV: process.env.NODE_ENV,
+  SERVICE_WORKER: process.env.SERVICE_WORKER,
+  BROWSERSYNC: process.env.BROWSERSYNC
+});
 
 // ===============================================
 // MISC SETTINGS
@@ -35,13 +41,17 @@ plugins.push(new webpack.DefinePlugin({
 }));
 plugins.push(new CopyPlugin(["index.html", "manifest.json", { from: "assets", to: "assets" }]));
 if (process.env.BROWSERSYNC === "true") {
+  const hasCerts = fs.existsSync("ssl/key.pem") && fs.existsSync("ssl/cert.pem");
+  if (!hasCerts) {
+    console.log("No SSL Key/Certificate found in /ssl, serving over HTTP.");
+  }
   plugins.push(new BrowserSyncPlugin({
     host: process.env.IP || 'localhost',
     port: process.env.PORT || 3000,
     server: {
       baseDir: ['./dist']
     },
-    https: {
+    https: hasCerts && {
       key: "ssl/key.pem",
       cert: "ssl/cert.pem"
     },
