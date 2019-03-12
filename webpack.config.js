@@ -1,4 +1,5 @@
 const path = require('path');
+const dotenv = require("dotenv");
 const webpack = require('webpack');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
@@ -7,7 +8,12 @@ const CleanPlugin = require("clean-webpack-plugin");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 
 const isProduction = process.env.NODE_ENV === "production";
-console.log("Running in production mode?", isProduction);
+
+dotenv.config({ path: ".env.local" });
+dotenv.config({ path: isProduction ? ".env.prod" : ".env.dev" });
+dotenv.config({ path: ".env" });
+
+console.log("Enviroment variables are:", process.env);
 
 // ===============================================
 // MISC SETTINGS
@@ -23,26 +29,34 @@ plugins.push(new VueLoaderPlugin());
 plugins.push(new webpack.DefinePlugin({
   CANVAS_RENDERER: JSON.stringify(true),
   WEBGL_RENDERER: JSON.stringify(true),
-  'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+  'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+  'process.env.SERVICE_WORKER': JSON.stringify(process.env.SERVICE_WORKER),
+  'process.env.BROWSERSYNC': JSON.stringify(process.env.BROWSERSYNC)
 }));
 plugins.push(new CopyPlugin(["index.html", "manifest.json", { from: "assets", to: "assets" }]));
-if (!isProduction) {
+if (process.env.BROWSERSYNC === "true") {
   plugins.push(new BrowserSyncPlugin({
     host: process.env.IP || 'localhost',
     port: process.env.PORT || 3000,
     server: {
       baseDir: ['./dist']
-    }
+    },
+    https: {
+      key: "ssl/key.pem",
+      cert: "ssl/cert.pem"
+    },
+    open: false
   }));
-}
-if (isProduction) {
+} else {
   plugins.push(new CleanPlugin());
+}
+if (process.env.SERVICE_WORKER === "true") {
   plugins.push(new WorkboxPlugin.GenerateSW({
     swDest: "serviceworker.js",
     clientsClaim: true,
     importWorkboxFrom: "local",
     skipWaiting: true
-  }))
+  }));
 }
 
 module.exports = {

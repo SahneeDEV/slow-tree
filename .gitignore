@@ -1,2 +1,5 @@
 dist
 node_modules
+ssl/key.pem
+ssl/cert.pem
+.env.local

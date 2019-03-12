@@ -1,6 +1,6 @@
 // Check that service workers are registered
 if ('serviceWorker' in navigator) {
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.SERVICE_WORKER === "true") {
         // Use the window load event to keep the page load performant
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/serviceworker.js').then(registration => {
