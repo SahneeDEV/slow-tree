@@ -204,6 +204,7 @@ import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
 import uuid from "@/utils/uuid";
 import LeavesGameObject from "@/gameobjects/LeavesGameObject";
+import FileSaver from "file-saver";
 
 interface IMenuItem {
   id: string;
@@ -409,14 +410,10 @@ export default class STApp extends Vue {
   }
 
   download(name: string, type: string, content: string) {
-    const data = content.startsWith("data:")
-      ? content
-      : "data:" + type + ";charset=utf-8," + encodeURIComponent(content);
-    const a = document.body.appendChild(document.createElement("a"));
-    a.download = name;
-    a.href = data;
-    a.click();
-    document.body.removeChild(a);
+    if (!content.startsWith("data:")) {
+      content = "data:" + type + ";base64," + btoa(content);
+    }
+    FileSaver.saveAs(content, name);
   }
 
   /**
