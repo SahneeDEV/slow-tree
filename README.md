@@ -11,6 +11,7 @@ A web based 2D-tree creation application. Check it out at [tree.sahnee.de](https
 * Download the tree project file and **continue building it on another computer**.
 * Save/cache the tree to your **local storage**.
 * Full **undo-redo support using** a command pattern implementation.
+* **PWA support**: Add slow-tree to your desktop/home screen
 
 ## Why?
 
