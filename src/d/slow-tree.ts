@@ -15,6 +15,7 @@ declare global {
             readonly NODE_ENV: "production" | "development"
             readonly SERVICE_WORKER: "true" | "false";
             readonly BROWSERSYNC: "true" | "false";
+            readonly ROOT: string;
         }
     }
 

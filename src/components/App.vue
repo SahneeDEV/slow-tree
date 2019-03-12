@@ -6,7 +6,7 @@
           <v-list class="pa-0">
             <v-list-tile avatar>
               <v-list-tile-avatar>
-                <img src="/assets/images/icons/favicon.ico">
+                <img :src="`${root}/assets/images/icons/favicon.ico`">
               </v-list-tile-avatar>
 
               <v-list-tile-content>
@@ -241,6 +241,10 @@ export default class STApp extends Vue {
   private angle: integer = 25;
   private oldSavegameVersion: boolean = false;
   private errorMessage: string = "";
+
+  private get root() {
+    return process.env.ROOT;
+  }
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.

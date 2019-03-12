@@ -4,6 +4,7 @@ node_js:
 install:
   - npm i
 before_script:
+  - echo -e "ROOT=$ROOT\n" > ./.env.local
   - npm run build
 deploy:
   local-dir: ./dist

@@ -18,7 +18,8 @@ dotenv.config({ path: ".env" });
 console.log("Environment variables are:", {
   NODE_ENV: process.env.NODE_ENV,
   SERVICE_WORKER: process.env.SERVICE_WORKER,
-  BROWSERSYNC: process.env.BROWSERSYNC
+  BROWSERSYNC: process.env.BROWSERSYNC,
+  ROOT: process.env.ROOT
 });
 
 // ===============================================
@@ -37,7 +38,8 @@ plugins.push(new webpack.DefinePlugin({
   WEBGL_RENDERER: JSON.stringify(true),
   'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
   'process.env.SERVICE_WORKER': JSON.stringify(process.env.SERVICE_WORKER),
-  'process.env.BROWSERSYNC': JSON.stringify(process.env.BROWSERSYNC)
+  'process.env.BROWSERSYNC': JSON.stringify(process.env.BROWSERSYNC),
+  'process.env.ROOT': JSON.stringify(process.env.ROOT)
 }));
 plugins.push(new CopyPlugin(["index.html", "manifest.json", { from: "assets", to: "assets" }]));
 if (process.env.BROWSERSYNC === "true") {
@@ -80,7 +82,7 @@ module.exports = {
   output: {
     //pathinfo: true,
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
+    publicPath: process.env.ROOT,
     filename: '[name].bundle.js'
   },
   watch: watch,
