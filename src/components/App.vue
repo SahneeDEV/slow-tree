@@ -199,7 +199,6 @@ import AddTreeElementCommand from "@/commands/AddTreeElementCommand";
 import ChangeBackgroundCommand from "@/commands/ChangeBackgroundCommand";
 import ChangeWholeTreeCommand from "@/commands/ChangeWholeTreeCommand";
 import DestroyTreeElementCommand from "@/commands/DestroyTreeElementCommand";
-import Locale, { defaultLocale } from "@/Locale";
 import BackgroundSkin from "@/BackgroundSkin";
 import TreeType from "@/TreeType";
 import uuid from "@/utils/uuid";
@@ -218,7 +217,6 @@ export default class STApp extends Vue {
     super();
   }
 
-  private locale: Locale = defaultLocale();
   private strings: {} = {};
   private game: Game | null = null;
   private scene: TreeDesignerScene | null = null;
@@ -250,15 +248,6 @@ export default class STApp extends Vue {
    */
   created() {
     this.tutorial = localStorage.getItem("tutorial") !== "true";
-    fetch(`/assets/locale/${Locale[this.locale]}.json`)
-      .then(data => data.json())
-      .then(json => {
-        console.log("Loaded locale ...", json);
-        this.strings = json;
-        if (this.game) {
-          this.game.cache.json.add("locale", json);
-        }
-      });
   }
 
   /**
