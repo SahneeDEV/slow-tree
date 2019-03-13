@@ -12,7 +12,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/slow-tree/index.html"
   },
   {
-    "revision": "f5674671f84e175235d73b9940bd6fab",
+    "revision": "2ed1e9616ba5633e7daf0e2226d4df8b",
     "url": "/slow-tree/manifest.json"
   },
   {
@@ -84,7 +84,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/slow-tree/assets/images/background/bright-daylight.jpg"
   },
   {
-    "revision": "02de3059c846d286c113",
+    "revision": "a24408d64958a4e7a02e",
     "url": "/slow-tree/app.bundle.js"
   }
 ]);

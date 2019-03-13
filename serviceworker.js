@@ -15,7 +15,7 @@ importScripts("/slow-tree/workbox-v4.1.0/workbox-sw.js");
 workbox.setConfig({modulePathPrefix: "/slow-tree/workbox-v4.1.0"});
 
 importScripts(
-  "/slow-tree/precache-manifest.e35dc0119aca06eccf8d56adee9134b9.js"
+  "/slow-tree/precache-manifest.c068a9b5578fb45d90d7e2f2ce0609b7.js"
 );
 
 workbox.core.skipWaiting();
