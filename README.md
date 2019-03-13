@@ -24,3 +24,5 @@ The UI is written in Vue.js and the application itself in Phaser 3. We use TypeS
 ## Contributions
 
 Feel free to shoot issues and PRs at us. Just keep in mind that this was designed as a fun little side project without serious production usage in mind.
+
+New commits to master are automatically deployed to tree.sahnee.de. However, due to highly aggressive caching(Cloudflare, Service Worker & GitHub Pages) it may take a while for the changes to be visible on your machine.
