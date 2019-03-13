@@ -13,7 +13,7 @@ deploy:
   github-token: $GITHUB_TOKEN
   keep-history: true
   on:
-    branch: ci-fixes
-#branches:
-#  only:
-#  - master
+    branch: master
+branches:
+  only:
+  - master
