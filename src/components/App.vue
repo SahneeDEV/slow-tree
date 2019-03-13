@@ -130,7 +130,7 @@
       </v-content>
       <v-footer app height="auto">
         <v-flex text-xs-center xs12>
-          slow-tree &copy;2019 —
+          slow-tree {{pkg.version}} &copy;2019 —
           <strong>sahnee.de</strong>
         </v-flex>
       </v-footer>
@@ -204,6 +204,7 @@ import TreeType from "@/TreeType";
 import uuid from "@/utils/uuid";
 import LeavesGameObject from "@/gameobjects/LeavesGameObject";
 import FileSaver from "file-saver";
+import pkg from "../../package.json";
 
 interface IMenuItem {
   id: string;
@@ -241,6 +242,7 @@ export default class STApp extends Vue {
   private angle: integer = 25;
   private oldSavegameVersion: boolean = false;
   private errorMessage: string = "";
+  private pkg = pkg;
 
   /**
    * Called when the component is ready to be used, but has no HTMl elements yet.
