@@ -8,6 +8,7 @@ before_script:
   - npm run build
 deploy:
   local-dir: ./dist
+  fqdn: tree.sahnee.de
   provider: pages
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
