@@ -49,17 +49,17 @@ export default class TreeDesignerScene extends Phaser.Scene implements ISaveable
     preload() {
         this._application = this.game as SlowTreeGame;
         // Test images
-        this.load.image("phaser", process.env.ROOT + "assets/images/phaser.png");
-        this.load.image("marker", process.env.ROOT + "assets/images/marker.png");
+        this.load.image("phaser", "assets/images/phaser.png");
+        this.load.image("marker", "assets/images/marker.png");
         // Tree images
         for (const treeType of TreeType.ALL_TREES) {
-            this.load.image(`tree/${treeType.id}/trunk`, `${process.env.ROOT}assets/images/tree/${treeType.id}/trunk.png`);
-            this.load.image(`tree/${treeType.id}/branch`, `${process.env.ROOT}assets/images/tree/${treeType.id}/branch.png`);
-            this.load.image(`tree/${treeType.id}/leaves`, `${process.env.ROOT}assets/images/tree/${treeType.id}/leaves.png`);
+            this.load.image(`tree/${treeType.id}/trunk`, `assets/images/tree/${treeType.id}/trunk.png`);
+            this.load.image(`tree/${treeType.id}/branch`, `assets/images/tree/${treeType.id}/branch.png`);
+            this.load.image(`tree/${treeType.id}/leaves`, `assets/images/tree/${treeType.id}/leaves.png`);
         }
         // Backgrounds
         for (const background of BackgroundSkin.ALL_BACKGROUNDS) {
-            this.load.image(background.id, process.env.ROOT + background.path);
+            this.load.image(background.id, background.path);
         }
     }
 
