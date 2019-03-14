@@ -36,6 +36,14 @@ export default class CommandManager {
     }
 
     /**
+     * Clears the undo/redo stacks.
+     */
+    public clear() {
+        this._undo = [];
+        this._redo = [];
+    }
+
+    /**
      * Redoes the last undone command and removes it from the redo stack. If no command has 
      * been undone before no action is performed.
      * @returns The command that was redone, or `null`.

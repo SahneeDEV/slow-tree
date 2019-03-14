@@ -40,7 +40,7 @@ export default class DestroyTreeElementCommand implements ICommand {
             if (!owner) {
                 throw new SlowTreeError("Could not un-delete tree element with owner " + this.owner);
             }
-            // A kinda hacky workaround leveraging the fact that the save data strcuture is the
+            // A kinda hacky workaround leveraging the fact that the save data structure is the
             // same as the one used in game.
             // For a larger project a better solution might be warraned, but in this case it does 
             // the job just fine.
