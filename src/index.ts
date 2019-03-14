@@ -4,6 +4,7 @@ import Vuetify from 'vuetify';
 // TODO: Serve as seperate CSS file -> https://vuetifyjs.com/en/getting-started/quick-start (CDN section)
 import 'vuetify/dist/vuetify.min.css';
 import "./register-serviceworker";
+import "hammerjs";
 
 Vue.use(Vuetify);
 
