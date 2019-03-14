@@ -426,6 +426,7 @@ export default class STApp extends Vue {
         const json = JSON.parse(reader.result as string);
         console.log("Uploaded file ...", json);
         try {
+          this.game!.cmd.clear();
           scene.loadGame(json);
           this.cache();
         } catch (error) {
@@ -443,8 +444,9 @@ export default class STApp extends Vue {
    * Called when the user clicks on the delete button.
    */
   onClickDelete() {
-    if (this.scene) {
+    if (this.game && this.scene) {
       this.scene.clear();
+      this.game.cmd.clear();
       this.tree = this.scene.tree.treeType.id;
     }
     localStorage.removeItem("cache");
