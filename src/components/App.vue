@@ -1,7 +1,14 @@
 <template>
   <div id="app">
     <v-app dark>
-      <v-navigation-drawer app v-model="drawer" :mini-variant.sync="mini" touchless hide-overlay stateless>
+      <v-navigation-drawer
+        app
+        v-model="drawer"
+        :mini-variant.sync="mini"
+        touchless
+        hide-overlay
+        stateless
+      >
         <v-toolbar flat class="transparent">
           <v-list class="pa-0">
             <v-list-tile avatar>
@@ -206,6 +213,7 @@ import LeavesGameObject from "@/gameobjects/LeavesGameObject";
 import FileSaver from "file-saver";
 import pkg from "../../package.json";
 import clamp from "@/utils/clamp";
+import * as mousewheel from "@/utils/mousewheel";
 
 interface IMenuItem {
   id: string;
@@ -260,15 +268,17 @@ export default class STApp extends Vue {
    */
   mounted() {
     console.log("Component ready, creating game ...", this);
+    const el = this.$refs.game as HTMLDivElement;
     // Create the Phaser game and wait for it to be ready.
-    this.game = new Game(this.$refs.game as HTMLDivElement);
+    this.game = new Game(el);
     this.game.events.on("ready", this.onGameReady);
     // Hook up touch events.
-    this.hammertime = new Hammer(this.$refs.game as HTMLDivElement);
+    this.hammertime = new Hammer(el);
     this.hammertime.get("pinch").set({ enable: true });
     this.hammertime.get("pan").set({ enable: true });
     this.hammertime.on("pinchstart", this.onHammerPinch);
     this.hammertime.on("panstart", this.onHammerPan);
+    mousewheel.addEventHandler(el, this.onMouseWheel);
     // Add a property to the window oject for debugging purposes.
     window.game = this.game;
   }
@@ -300,7 +310,7 @@ export default class STApp extends Vue {
     this.onNewBackground(scene.background.backgroundImage);
     // Set camera bounds
     const camera = scene.cameras.main;
-    camera.setBounds(0, 0, camera.width, camera.height)
+    camera.setBounds(0, 0, camera.width, camera.height);
     // Check cache
     const cache = localStorage.getItem("cache");
     let willCache = true;
@@ -325,6 +335,7 @@ export default class STApp extends Vue {
 
   /**
    * Called whenever we pinch.
+   * @param e The event.
    */
   onHammerPinch(e: HammerInput) {
     if (this.hammertime && this.scene) {
@@ -346,6 +357,10 @@ export default class STApp extends Vue {
     }
   }
 
+  /**
+   * Called when we pan around.
+   * @param e The event.
+   */
   onHammerPan(e: HammerInput) {
     if (this.hammertime && this.scene) {
       const camera = this.scene.cameras.main;
@@ -354,17 +369,27 @@ export default class STApp extends Vue {
       const panHandler = (e: HammerInput) => {
         camera.scrollX = origX - e.deltaX / camera.zoom;
         camera.scrollY = origY - e.deltaY / camera.zoom;
-      }
+      };
       const panEndHandler = (e: HammerInput) => {
-        console.log("x", camera.scrollX)
-        console.log("y", camera.scrollY)
         if (this.hammertime) {
           this.hammertime.off("pan", panHandler);
           this.hammertime.off("panend", panEndHandler);
         }
-      }
+      };
       this.hammertime.on("pan", panHandler);
       this.hammertime.on("panend", panEndHandler);
+    }
+  }
+
+  /**
+   * Called when we scroll with the mouse wheel.
+   */
+  onMouseWheel(scroll: number) {
+    if (this.scene) {
+      const camera = this.scene.cameras.main;
+      const oldScroll = camera.zoom;
+      const zoom = clamp(1, 10, oldScroll + scroll);
+      camera.zoom = zoom;
     }
   }
 
