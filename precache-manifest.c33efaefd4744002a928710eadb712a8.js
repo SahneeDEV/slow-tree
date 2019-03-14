@@ -44,7 +44,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/assets/images/tree/sakura/branch.png"
   },
   {
-    "revision": "a40fad9daaf46aa7fe0a",
+    "revision": "8e54112f86de73350949",
     "url": "/vendor.bundle.js"
   },
   {
@@ -84,7 +84,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/assets/images/background/bright-daylight.jpg"
   },
   {
-    "revision": "4f6a6bbc1fbb61188132",
+    "revision": "8a92a9431e539ced894c",
     "url": "/app.bundle.js"
   }
 ]);
