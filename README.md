@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/PatrickSachs/slow-tree.svg?branch=master)](https://travis-ci.com/PatrickSachs/slow-tree)
 
-A web based 2D-tree creation application. Check it out at [tree.sahnee.de](https://tree.sahnee.de/)!
+A web based 2D-tree creation application.
 
 ![Game Screenshot](https://data.patrick-sachs.de/content/slow-tree/github-banner.png)
 
